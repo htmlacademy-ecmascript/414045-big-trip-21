@@ -43,7 +43,7 @@ function createTemplate() {
   );
 }
 
-export default class WaypointView {
+export default class TripEventView {
   getTemplate() {
     return createTemplate();
   }

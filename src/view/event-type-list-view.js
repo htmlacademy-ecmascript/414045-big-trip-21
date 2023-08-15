@@ -1,10 +1,16 @@
-import {createElement} from '../render';
+import {createElement} from '../render.js';
 
 function createTemplate() {
-  return ('<ul class="trip-events__list"></ul>');
+  return (
+    `<div class="event__type-list">
+      <fieldset class="event__type-group">
+        <legend class="visually-hidden">Event type</legend>
+      </fieldset>
+    </div>`
+  );
 }
 
-export default class WaypointListView {
+export default class EventTypeListView {
   getTemplate() {
     return createTemplate();
   }
