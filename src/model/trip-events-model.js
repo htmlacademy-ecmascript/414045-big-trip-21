@@ -1,10 +1,10 @@
-import {getRandomTripEvent} from '../mock/trip-event';
+import {getTripEvents} from '../mock/trip-events';
 
 
 const TRIP_EVENTS_COUNT = 5;
 
 export default class TripEventsModel {
   getTripEvents() {
-    return Array.from({length: TRIP_EVENTS_COUNT}, getRandomTripEvent);
+    return getTripEvents(TRIP_EVENTS_COUNT);
   }
 }

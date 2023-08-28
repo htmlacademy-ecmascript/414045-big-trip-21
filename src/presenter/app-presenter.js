@@ -13,10 +13,9 @@ export default class AppPresenter {
   tripEventsList = new TripEventsListView();
   eventTypeList = new EventTypeListView();
 
-  constructor({tripEventModel, destinationsModel, eventTypesModel, offersModel}) {
+  constructor({tripEventModel, destinationsModel, offersModel}) {
     this.tripEvents = [...tripEventModel.getTripEvents()];
     this.destinations = [...destinationsModel.getDestinations()];
-    this.eventTypes = [...eventTypesModel.getEventTypes()];
     this.offers = offersModel.getOffers();
   }
 
@@ -25,27 +24,24 @@ export default class AppPresenter {
     render(new SortView(), this.tripEventsContainer);
     render(new EditFormView({
       destinations: this.destinations,
-      offers: this.offers,
-      eventTypes: this.eventTypes,
+      offers: this.offers
     }),
     this.tripEventsContainer);
     render(this.eventTypeList, document.querySelector('.event__type-wrapper'));
     render(this.tripEventsList, this.tripEventsContainer);
 
-    for (const eventType of this.eventTypes) {
-      render(new EventTypeView({type: eventType}), this.eventTypeList.getElement());
+    for (const offersByTypes of this.offers) {
+      render(new EventTypeView({type: offersByTypes.type}), this.eventTypeList.getElement());
     }
 
     for (const tripEvent of this.tripEvents) {
-      const eventType = this.eventTypes[tripEvent.typeId];
-      const destination = this.destinations[tripEvent.destinationId];
-      const eventOffers = this.offers[eventType.name].filter((offer, index) => tripEvent.offerIds.includes(index));
+      const eventDestination = this.destinations.find((destination) => destination.id === tripEvent.destination);
+      const eventOffers = this.offers.find((typeOffers) => typeOffers.type === tripEvent.type).offers.filter((offer) => tripEvent.offers.includes(offer.id));
 
       render(new TripEventView({
         tripEvent: tripEvent,
         offers: eventOffers,
-        eventType: eventType,
-        destination: destination
+        destination: eventDestination
       }), this.tripEventsList.getElement());
     }
   }

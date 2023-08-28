@@ -1,7 +1,7 @@
-import {getAllOffers} from '../mock/offer';
+import {getOffers} from '../mock/offers';
 
 export default class OffersModel {
   getOffers() {
-    return getAllOffers();
+    return getOffers();
   }
 }
