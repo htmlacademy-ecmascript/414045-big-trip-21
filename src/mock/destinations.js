@@ -12,7 +12,7 @@ function getDestinations() {
 
     destinations.push({
       id: idGenerator(),
-      destinations: getLorem(getRandomNumber(1, 3)),
+      description: getLorem(getRandomNumber(1, 3)),
       name: getRandomElementFromArray(DESTINATION_NAMES),
       pictures: getPictures(photoCount)
     });
@@ -27,7 +27,7 @@ function getPictures(count) {
   for (let i = 0; i < count; i++) {
     pictures.push({
       src: RANDOM_PICTURE_API_URL + getRandomNumber(1, 200),
-      destination: getLorem(1)
+      description: getLorem(1)
     });
   }
 

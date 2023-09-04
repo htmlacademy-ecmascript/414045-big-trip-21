@@ -9,14 +9,13 @@ import EmptyTripEventsListView from '../view/empty-trip-events-list-view';
 import {render} from '../framework/render';
 
 export default class AppPresenter {
-  #tripEvents;
-  #destinations;
-  #offers;
-  #sorts;
+  #tripEvents = [];
+  #destinations = [];
+  #offers = [];
+  #sorts = [];
   #filterContainer = document.querySelector('.trip-controls__filters');
   #tripEventsContainer = document.querySelector('.trip-events');
   #tripEventsList = new TripEventsListView();
-  #eventTypeList = new EventTypeListView();
 
   constructor({tripEventModel, destinationsModel, offersModel, sorts}) {
     this.#tripEvents = [...tripEventModel.getTripEvents()];
@@ -35,10 +34,6 @@ export default class AppPresenter {
       render(new EmptyTripEventsListView(), this.#tripEventsContainer);
     }
 
-    for (const offersByTypes of this.#offers) {
-      render(new EventTypeView({type: offersByTypes.type}), this.#eventTypeList.element);
-    }
-
     for (const tripEvent of this.#tripEvents) {
       this.#renderTripEvent(tripEvent);
     }
@@ -47,6 +42,7 @@ export default class AppPresenter {
   #renderTripEvent(tripEvent) {
     const eventDestination = this.#destinations.find((destination) => destination.id === tripEvent.destination);
     const eventsContainer = this.#tripEventsList.element;
+    const eventTypeList = new EventTypeListView();
 
     const tripEventView = new TripEventView({
       tripEvent: tripEvent,
@@ -54,6 +50,7 @@ export default class AppPresenter {
       destination: eventDestination,
       onClick: openEdit
     });
+
     const editTripEventView = new EditFormView({
       tripEvent: tripEvent,
       offers: this.#offers,
@@ -61,6 +58,12 @@ export default class AppPresenter {
       onSubmit: closeEdit,
       onClickRollupButton: closeEdit
     });
+
+    render(eventTypeList, editTripEventView.element.querySelector('.event__type-wrapper'));
+
+    for (const offersByTypes of this.#offers) {
+      render(new EventTypeView({type: offersByTypes.type, tripEventId: tripEvent.id}), eventTypeList.element.querySelector('.event__type-group'));
+    }
 
     const escKeyDown = (evt) => {
       if (evt.key === 'Escape' || evt.key === 'Esc') {
