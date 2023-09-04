@@ -23,6 +23,17 @@ const DESTINATION_NAMES = [
   'Milano'
 ];
 
+const FILTERS = [
+  'everything',
+  'future',
+  'present',
+  'past'
+];
+
+const DEFAULT_FILTER_ACTIVE = 'past';
+
+const DEFAULT_SORT_ACTIVE = 'day';
+
 export {
   COUNT_OFFERS_IN_EVENT_TYPE,
   EVENT_TYPES,
@@ -30,5 +41,8 @@ export {
   MILLISECOND_IN_DAY,
   MILLISECOND_IN_HOUR,
   MILLISECOND_IN_MINUTE,
-  MINUTES_IN_DAY
+  MINUTES_IN_DAY,
+  DEFAULT_SORT_ACTIVE,
+  FILTERS,
+  DEFAULT_FILTER_ACTIVE
 };
