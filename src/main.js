@@ -1,13 +1,13 @@
 import AppPresenter from './presenter/app-presenter';
-import TripEventsModel from './model/trip-events-model';
-import DestinationsModel from './model/destinations-model';
-import OffersModel from './model/offers-model';
+import TripEventModel from './model/trip-event-model';
+import DestinationModel from './model/destination-model';
+import OfferModel from './model/offer-model';
 import {getSorts} from './mock/sorts';
 
-const tripEventModel = new TripEventsModel();
-const destinationsModel = new DestinationsModel();
-const offersModel = new OffersModel();
+const tripEventModel = new TripEventModel();
+const destinationModel = new DestinationModel();
+const offerModel = new OfferModel();
 const sorts = getSorts();
-const appPresenter = new AppPresenter({tripEventModel, destinationsModel, offersModel, sorts});
+const appPresenter = new AppPresenter({tripEventModel, destinationModel, offerModel, sorts});
 
 appPresenter.init();

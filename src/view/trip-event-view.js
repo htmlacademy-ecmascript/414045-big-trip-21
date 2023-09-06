@@ -1,4 +1,4 @@
-import {getDiffTime, getEventTypeIconSrc, getTime, humanizeDate} from '../utils';
+import {getDiffTime, getEventTypeIconSrc, getTime, humanizeDate} from '../utils/common';
 import AbstractView from '../framework/view/abstract-view';
 
 function createTemplate({tripEvent, destination, offers}) {

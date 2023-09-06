@@ -99,4 +99,9 @@ export default class TripEventPresenter {
       this.#closeEdit();
     }
   };
+
+  destroy() {
+    remove(this.#tripEventComponent);
+    remove(this.#editTripEventComponent);
+  }
 }

@@ -1,4 +1,4 @@
-import {getDateWithTime, getEventTypeIconSrc} from '../utils';
+import {getDateWithTime, getEventTypeIconSrc} from '../utils/common';
 import AbstractView from '../framework/view/abstract-view';
 
 const DEFAULT_TYPE = 'taxi';

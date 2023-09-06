@@ -1,4 +1,4 @@
-import {getIdGenerator, getRandomDate, getRandomElementFromArray, getRandomNumber} from '../utils';
+import {getIdGenerator, getRandomDate, getRandomElementFromArray, getRandomNumber} from '../utils/common';
 import {
   COUNT_OFFERS_IN_EVENT_TYPE,
   DESTINATION_NAMES,
