@@ -1,4 +1,4 @@
-import {getIdGenerator, getLorem, getRandomElementFromArray, getRandomNumber} from '../utils';
+import {getIdGenerator, getLorem, getRandomElementFromArray, getRandomNumber} from '../utils/common';
 import {DESTINATION_NAMES} from '../const';
 
 const RANDOM_PICTURE_API_URL = 'http://picsum.photos/300/200?r=';

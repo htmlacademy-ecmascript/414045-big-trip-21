@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
-import {MILLISECOND_IN_DAY} from './const';
+import {MILLISECOND_IN_DAY} from '../const';
 
 const DATE_FORMAT = 'MMM DD';
 const TIME_FORMAT = 'HH-mm';

@@ -34,6 +34,12 @@ const DEFAULT_FILTER_ACTIVE = 'past';
 
 const DEFAULT_SORT_ACTIVE = 'day';
 
+const SortType = {
+  DEFAULT: 'sort-day',
+  TIME: 'sort-time',
+  PRICE: 'sort-price'
+};
+
 export {
   COUNT_OFFERS_IN_EVENT_TYPE,
   EVENT_TYPES,
@@ -44,5 +50,6 @@ export {
   MINUTES_IN_DAY,
   DEFAULT_SORT_ACTIVE,
   FILTERS,
-  DEFAULT_FILTER_ACTIVE
+  DEFAULT_FILTER_ACTIVE,
+  SortType
 };

@@ -1,4 +1,4 @@
-import {getIdGenerator, getRandomElementFromArray, getRandomNumber} from '../utils';
+import {getIdGenerator, getRandomElementFromArray, getRandomNumber} from '../utils/common';
 import {COUNT_OFFERS_IN_EVENT_TYPE, EVENT_TYPES} from '../const';
 
 const TITLES = [

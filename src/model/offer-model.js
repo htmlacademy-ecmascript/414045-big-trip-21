@@ -1,6 +1,6 @@
 import {getOffers} from '../mock/offers';
 
-export default class OffersModel {
+export default class OfferModel {
   getOffers() {
     return getOffers();
   }

@@ -1,13 +1,11 @@
-import EventTypeListView from '../view/event-type-list-view';
 import TripEventView from '../view/trip-event-view';
 import EditFormView from '../view/edit-form-view';
 import {remove, render, replace} from '../framework/render';
-import EventTypeView from '../view/event-type-view';
 
 export default class TripEventPresenter {
   #tripEvent = null;
-  #offers = null;
-  #destinations = null;
+  #offers = [];
+  #destinations = [];
   #eventsListContainer = null;
   #onClickFavoriteButton = null;
   #tripEventComponent = null;
@@ -31,7 +29,6 @@ export default class TripEventPresenter {
 
     const eventDestination = this.#destinations.find((destination) => destination.id === this.#tripEvent.destination);
     const eventsContainer = this.#eventsListContainer.element;
-    const eventTypeList = new EventTypeListView();
 
     this.#tripEventComponent = new TripEventView({
       tripEvent: this.#tripEvent,
@@ -50,15 +47,6 @@ export default class TripEventPresenter {
     });
 
     if (prevTripEventComponent === null || prevEditTripEventComponent === null) {
-      render(eventTypeList, this.#editTripEventComponent.element.querySelector('.event__type-wrapper'));
-
-      for (const offersByTypes of this.#offers) {
-        render(new EventTypeView({
-          type: offersByTypes.type,
-          tripEventId: this.#tripEvent.id
-        }), eventTypeList.element.querySelector('.event__type-group'));
-      }
-
       render(this.#tripEventComponent, eventsContainer);
 
       return;
@@ -83,13 +71,13 @@ export default class TripEventPresenter {
 
   #openEdit = () => {
     this.#onOpenEditForm();
-    this.#eventsListContainer.element.replaceChild(this.#editTripEventComponent.element, this.#tripEventComponent.element);
+    replace(this.#editTripEventComponent, this.#tripEventComponent);
     document.addEventListener('keydown', this.#escKeyDown);
     this.#isOpenEdit = true;
   };
 
   #closeEdit = () => {
-    this.#eventsListContainer.element.replaceChild(this.#tripEventComponent.element, this.#editTripEventComponent.element);
+    replace(this.#tripEventComponent, this.#editTripEventComponent);
     document.removeEventListener('keydown', this.#escKeyDown);
     this.#isOpenEdit = false;
   };
@@ -99,4 +87,9 @@ export default class TripEventPresenter {
       this.#closeEdit();
     }
   };
+
+  destroy() {
+    remove(this.#tripEventComponent);
+    remove(this.#editTripEventComponent);
+  }
 }
