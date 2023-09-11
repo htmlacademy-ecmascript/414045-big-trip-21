@@ -1,22 +1,20 @@
-import EditFormView from '../view/edit-form-view.js';
 import FilterView from '../view/filter-view.js';
 import SortView from '../view/sort-view';
-import TripEventView from '../view/trip-event-view';
 import TripEventsListView from '../view/trip-events-list-view';
-import EventTypeView from '../view/event-type-view';
-import EventTypeListView from '../view/event-type-list-view';
 import EmptyTripEventsListView from '../view/empty-trip-events-list-view';
 import {render} from '../framework/render';
+import TripEventPresenter from './trip-event-presenter';
+import {updateItem} from '../utils';
 
 export default class AppPresenter {
-  #tripEvents;
-  #destinations;
-  #offers;
-  #sorts;
+  #tripEvents = [];
+  #destinations = [];
+  #offers = [];
+  #sorts = [];
   #filterContainer = document.querySelector('.trip-controls__filters');
   #tripEventsContainer = document.querySelector('.trip-events');
   #tripEventsList = new TripEventsListView();
-  #eventTypeList = new EventTypeListView();
+  #tripEventPresenter = new Map();
 
   constructor({tripEventModel, destinationsModel, offersModel, sorts}) {
     this.#tripEvents = [...tripEventModel.getTripEvents()];
@@ -35,51 +33,25 @@ export default class AppPresenter {
       render(new EmptyTripEventsListView(), this.#tripEventsContainer);
     }
 
-    for (const offersByTypes of this.#offers) {
-      render(new EventTypeView({type: offersByTypes.type}), this.#eventTypeList.element);
-    }
-
     for (const tripEvent of this.#tripEvents) {
-      this.#renderTripEvent(tripEvent);
+      const tripEventPresenter = new TripEventPresenter({
+        offers: this.#offers,
+        destinations: this.#destinations,
+        eventsListContainer: this.#tripEventsList,
+        onClickFavoriteButton: this.#handleTripEventChange,
+        onOpenEditForm: this.#handleOpenEditEvent
+      });
+      this.#tripEventPresenter.set(tripEvent.id, tripEventPresenter);
+      tripEventPresenter.init(tripEvent);
     }
   }
 
-  #renderTripEvent(tripEvent) {
-    const eventDestination = this.#destinations.find((destination) => destination.id === tripEvent.destination);
-    const eventsContainer = this.#tripEventsList.element;
+  #handleTripEventChange = (updatedTripEvent) => {
+    this.#tripEvents = updateItem(this.#tripEvents, updatedTripEvent);
+    this.#tripEventPresenter.get(updatedTripEvent.id).init(updatedTripEvent);
+  };
 
-    const tripEventView = new TripEventView({
-      tripEvent: tripEvent,
-      offers: this.#offers,
-      destination: eventDestination,
-      onClick: openEdit
-    });
-    const editTripEventView = new EditFormView({
-      tripEvent: tripEvent,
-      offers: this.#offers,
-      destinations: this.#destinations,
-      onSubmit: closeEdit,
-      onClickRollupButton: closeEdit
-    });
-
-    const escKeyDown = (evt) => {
-      if (evt.key === 'Escape' || evt.key === 'Esc') {
-        evt.preventDefault();
-        closeEdit();
-        document.removeEventListener('keydown', escKeyDown);
-      }
-    };
-
-    function openEdit() {
-      eventsContainer.replaceChild(editTripEventView.element, tripEventView.element);
-      document.addEventListener('keydown', escKeyDown);
-    }
-
-    function closeEdit() {
-      eventsContainer.replaceChild(tripEventView.element, editTripEventView.element);
-      document.removeEventListener('keydown', escKeyDown);
-    }
-
-    render(tripEventView, eventsContainer);
-  }
+  #handleOpenEditEvent = () => {
+    this.#tripEventPresenter.forEach((tripEventPresenter) => tripEventPresenter.reset());
+  };
 }

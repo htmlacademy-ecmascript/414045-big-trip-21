@@ -94,6 +94,10 @@ function getEventTypeIconSrc(type) {
   return `/img/icons/${type}.png`;
 }
 
+function updateItem(items, updatedItem) {
+  return items.map((item) => item.id === updatedItem.id ? updatedItem : item);
+}
+
 export {
   getRandomElementFromArray,
   humanizeDate,
@@ -104,5 +108,6 @@ export {
   getRandomNumber,
   getIdGenerator,
   getLorem,
-  getEventTypeIconSrc
+  getEventTypeIconSrc,
+  updateItem
 };
