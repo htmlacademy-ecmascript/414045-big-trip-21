@@ -20,7 +20,7 @@ export default class AppPresenter {
   #filterContainer = document.querySelector('.trip-controls__filters');
   #tripEventsContainer = document.querySelector('.trip-events');
   #tripEventsList = new TripEventsListView();
-  #tripEventPresenter = new Map();
+  #tripEventPresenters = new Map();
   #currentSortType = SortType.DEFAULT;
 
   constructor({tripEventModel, destinationModel, offerModel, sorts}) {
@@ -57,7 +57,7 @@ export default class AppPresenter {
         onClickFavoriteButton: this.#handleTripEventChange,
         onOpenEditForm: this.#handleOpenEditEvent
       });
-      this.#tripEventPresenter.set(tripEvent.id, tripEventPresenter);
+      this.#tripEventPresenters.set(tripEvent.id, tripEventPresenter);
       tripEventPresenter.init(tripEvent);
     }
   }
@@ -65,11 +65,11 @@ export default class AppPresenter {
   #handleTripEventChange = (updatedTripEvent) => {
     this.#tripEvents = updateItem(this.#tripEvents, updatedTripEvent);
     this.#defaultSortedTripEvents = updateItem(this.#defaultSortedTripEvents, updatedTripEvent);
-    this.#tripEventPresenter.get(updatedTripEvent.id).init(updatedTripEvent);
+    this.#tripEventPresenters.get(updatedTripEvent.id).init(updatedTripEvent);
   };
 
   #handleOpenEditEvent = () => {
-    this.#tripEventPresenter.forEach((tripEventPresenter) => tripEventPresenter.reset());
+    this.#tripEventPresenters.forEach((tripEventPresenter) => tripEventPresenter.reset());
   };
 
   #handleSortChange = (sortType) => {
@@ -99,7 +99,7 @@ export default class AppPresenter {
   };
 
   #clearTripEventsList() {
-    this.#tripEventPresenter.forEach((presenter) => presenter.destroy());
-    this.#tripEventPresenter.clear();
+    this.#tripEventPresenters.forEach((presenter) => presenter.destroy());
+    this.#tripEventPresenters.clear();
   }
 }

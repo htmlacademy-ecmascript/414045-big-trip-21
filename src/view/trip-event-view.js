@@ -42,7 +42,7 @@ function createOffersTemplate({tripEvent, offers}) {
   const eventTypeOffers = offers.find((typeOffers) => typeOffers.type === tripEvent.type).offers;
   const eventOffers = eventTypeOffers.filter((offer) => tripEvent.offers.includes(offer.id));
 
-  return eventOffers.length ? `<h4 class="visually-hidden">Offers:</h4>
+  return eventOffers.length > 0 ? `<h4 class="visually-hidden">Offers:</h4>
         <ul class="event__selected-offers">
           ${eventOffers.map((offer) => `<li class="event__offer">
                 <span class="event__offer-title">${offer.title}</span> &plus;&euro;&nbsp;

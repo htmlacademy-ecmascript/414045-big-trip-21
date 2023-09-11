@@ -13,7 +13,7 @@ const TRIP_EVENT_DEFAULT = {
   type: DEFAULT_TYPE
 };
 
-function createTemplate({tripEvent, destinations, offers}) {
+function createTemplate(tripEvent, destinations, offers) {
   const eventDestination = destinations.find((destination) => destination.id === tripEvent.destination);
 
   return (
@@ -25,6 +25,9 @@ function createTemplate({tripEvent, destinations, offers}) {
                       <img class="event__type-icon" width="17" height="17" src="${getEventTypeIconSrc(tripEvent.type)}" alt="Event type icon">
                     </label>
                     <input class="event__type-toggle  visually-hidden" id="event-type-toggle-${tripEvent.id}" type="checkbox">
+
+                    ${createEventTypeListTemplate(offers, tripEvent.id)}
+
                   </div>
 
                   <div class="event__field-group  event__field-group--destination">
@@ -64,7 +67,7 @@ function createTemplate({tripEvent, destinations, offers}) {
                     <h3 class="event__section-title  event__section-title--offers">Offers</h3>
 
                     <div class="event__available-offers">
-                        ${createOffersTemplate({tripEvent, offers})}
+                        ${createOffersTemplate(tripEvent, offers)}
                     </div>
                   </section>
 
@@ -81,7 +84,7 @@ function createTemplate({tripEvent, destinations, offers}) {
   );
 }
 
-function createOffersTemplate({tripEvent, offers}) {
+function createOffersTemplate(tripEvent, offers) {
   const currentTypeOffers = offers.find((typeOffers) => typeOffers.type === tripEvent.type).offers;
   return currentTypeOffers.map((offer) => `<div class="event__offer-selector">
             <input class="event__offer-checkbox  visually-hidden" id="event-offer-luggage-${tripEvent.id}" type="checkbox" name="event-offer-luggage"
@@ -100,6 +103,26 @@ function createDestinationPhotosTemplate(photos) {
                 ${photos.map((photo) => `<img class="event__photo" src="${photo.src}" alt="${photo.description}">`)}
             </div>
           </div>`;
+}
+
+function createEventTypeListTemplate(offers, tripEventId) {
+  return `<div class="event__type-list">
+      <fieldset class="event__type-group">
+        <legend class="visually-hidden">Event type</legend>
+
+        ${offers.map((offersByTypes) => createEventTypeTemplate(offersByTypes.type, tripEventId)).join('')}
+
+      </fieldset>
+    </div>`;
+}
+
+function createEventTypeTemplate(type, tripEventId) {
+  return (
+    `<div class="event__type-item">
+        <input id="event-type-${type}${tripEventId ? `-${tripEventId}` : ''}" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${type}">
+        <label class="event__type-label  event__type-label--${type}" for="event-type-${type}${tripEventId ? `-${tripEventId}` : ''}">${type}</label>
+    </div>`
+  );
 }
 
 export default class EditFormView extends AbstractView {
@@ -133,6 +156,6 @@ export default class EditFormView extends AbstractView {
   };
 
   get template() {
-    return createTemplate({tripEvent: this.#tripEvent, destinations: this.#destinations, offers: this.#offers});
+    return createTemplate(this.#tripEvent, this.#destinations, this.#offers);
   }
 }

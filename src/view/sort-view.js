@@ -3,7 +3,7 @@ import {DEFAULT_SORT_ACTIVE} from '../const';
 
 function createTemplate(sortItems) {
   return `<form class="trip-events__trip-sort  trip-sort" action="#" method="get">
-            ${sortItems}
+            ${sortItems.map((sort) => createSortTemplate(sort)).join('')}
           </form>`;
 }
 
@@ -27,10 +27,8 @@ export default class SortView extends AbstractView {
   }
 
   get template() {
-    return createTemplate(this.#getSortItems());
+    return createTemplate(this.#sorts);
   }
-
-  #getSortItems = () => this.#sorts.map((sort) => createSortTemplate(sort)).join('');
 
   #onSortChangeHandler = (evt) => {
     if (evt.target.tagName !== 'INPUT') {
