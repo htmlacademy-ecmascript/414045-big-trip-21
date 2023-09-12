@@ -1,5 +1,5 @@
 import {getDateWithTime, getEventTypeIconSrc} from '../utils/common';
-import AbstractView from '../framework/view/abstract-view';
+import AbstractStatefulView from '../framework/view/abstract-stateful-view';
 
 const DEFAULT_TYPE = 'taxi';
 const TRIP_EVENT_DEFAULT = {
@@ -34,9 +34,9 @@ function createTemplate(tripEvent, destinations, offers) {
                     <label class="event__label  event__type-output" for="event-destination-${tripEvent.id}">
                       ${tripEvent.type}
                     </label>
-                    <input class="event__input  event__input--destination" id="event-destination-${tripEvent.destination}" type="text" name="event-destination" value="${tripEvent.destination ? destinations[tripEvent.destination].name : ''}" list="destination-list-1">
+                    <input class="event__input  event__input--destination" id="event-destination-${tripEvent.id}" type="text" name="event-destination" value="${tripEvent.destination ? eventDestination.name : ''}" list="destination-list-${tripEvent.id}">
                     <datalist id="destination-list-${tripEvent.id}">
-                      ${destinations.map((destination) => `<option value="${destination.name}">${destination.name}</option>`).join('')}
+                      ${destinations.map((destination) => `<option value="${destination.name}"></option>`).join('')}
                     </datalist>
                   </div>
 
@@ -53,7 +53,7 @@ function createTemplate(tripEvent, destinations, offers) {
                       <span class="visually-hidden">Price</span>
                       &euro;
                     </label>
-                    <input class="event__input  event__input--price" id="event-price-${tripEvent.id}" type="text" name="event-price" value="${tripEvent.price ?? ''}">
+                    <input class="event__input  event__input--price" id="event-price-${tripEvent.id}" type="text" name="event-price" value="${tripEvent.basePrice ?? ''}">
                   </div>
 
                   <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
@@ -87,9 +87,9 @@ function createTemplate(tripEvent, destinations, offers) {
 function createOffersTemplate(tripEvent, offers) {
   const currentTypeOffers = offers.find((typeOffers) => typeOffers.type === tripEvent.type).offers;
   return currentTypeOffers.map((offer) => `<div class="event__offer-selector">
-            <input class="event__offer-checkbox  visually-hidden" id="event-offer-luggage-${tripEvent.id}" type="checkbox" name="event-offer-luggage"
-                ${tripEvent.offers.includes(offer.id) ? 'checked' : ''}>
-            <label class="event__offer-label" for="event-offer-luggage-${tripEvent.id}">
+            <input class="event__offer-checkbox  visually-hidden" id="event-offer-luggage-${offer.id}" type="checkbox" name="${offer.id}"
+                ${tripEvent.offers.has(offer.id) ? 'checked' : ''}>
+            <label class="event__offer-label" for="event-offer-luggage-${offer.id}">
                 <span class="event__offer-title">${offer.title}</span>
                 &plus;&euro;&nbsp;
                 <span class="event__offer-price">${offer.price}</span>
@@ -125,8 +125,7 @@ function createEventTypeTemplate(type, tripEventId) {
   );
 }
 
-export default class EditFormView extends AbstractView {
-  #tripEvent = null;
+export default class EditFormView extends AbstractStatefulView {
   #destinations = [];
   #offers = [];
   #onSubmit = null;
@@ -134,19 +133,18 @@ export default class EditFormView extends AbstractView {
 
   constructor({tripEvent, offers, destinations, onSubmit, onClickRollupButton = TRIP_EVENT_DEFAULT}) {
     super();
-    this.#tripEvent = tripEvent;
     this.#destinations = destinations;
     this.#offers = offers;
     this.#onSubmit = onSubmit;
     this.#onClickRollupButton = onClickRollupButton;
 
-    this.element.addEventListener('submit', this.#formSubmitHandler);
-    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#onClickRollupButtonHandler);
+    this._setState(EditFormView.parseTripEventToState(tripEvent));
+    this._restoreHandlers();
   }
 
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
-    this.#onSubmit();
+    this.#onSubmit(EditFormView.parseStateToTripEvent(this._state));
     this.element.removeEventListener('submit', this.#onSubmit);
   };
 
@@ -155,7 +153,62 @@ export default class EditFormView extends AbstractView {
     this.element.removeEventListener('submit', this.#onSubmit);
   };
 
+  #onChangeTipEventTypeHandler = (evt) => {
+    this.updateElement({type: evt.target.value, offers: new Set()});
+  };
+
+  #onChangeDestinationHandler = (evt) => {
+    const selectedDestination = this.#destinations.find((destination) => destination.name === evt.target.value);
+    this.updateElement({destination: selectedDestination.id});
+  };
+
+  #onChangePrice = (evt) => {
+    this._setState({basePrice: evt.target.value});
+  };
+
+  #onChangeOffer = (evt) => {
+    const offers = this._state.offers;
+    const offerId = evt.target.name;
+
+    if (offers.has(offerId)) {
+      offers.delete(offerId);
+    } else {
+      offers.add(Number(evt.target.name));
+    }
+
+    this._setState({offers: offers});
+  };
+
   get template() {
-    return createTemplate(this.#tripEvent, this.#destinations, this.#offers);
+    return createTemplate(this._state, this.#destinations, this.#offers);
+  }
+
+  static parseTripEventToState(tripEvent) {
+    const state = {...tripEvent};
+
+    state.offers = new Set(state.offers);
+
+    return state;
+  }
+
+  static parseStateToTripEvent(state) {
+    const tripEvent = {...state};
+
+    tripEvent.offers = Array.from(tripEvent.offers);
+
+    return tripEvent;
+  }
+
+  _restoreHandlers() {
+    this.element.addEventListener('submit', this.#formSubmitHandler);
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#onClickRollupButtonHandler);
+    this.element.querySelector('.event__type-group').addEventListener('change', this.#onChangeTipEventTypeHandler);
+    this.element.querySelector(`#event-destination-${this._state.id}`).addEventListener('change', this.#onChangeDestinationHandler);
+    this.element.querySelector(`#event-price-${this._state.id}`).addEventListener('change', this.#onChangePrice);
+    this.element.querySelector('.event__available-offers').addEventListener('change', this.#onChangeOffer);
+  }
+
+  reset(tripEvent) {
+    this.updateElement(EditFormView.parseTripEventToState(tripEvent));
   }
 }
