@@ -54,7 +54,7 @@ export default class AppPresenter {
         offers: this.#offers,
         destinations: this.#destinations,
         eventsListContainer: this.#tripEventsList,
-        onClickFavoriteButton: this.#handleTripEventChange,
+        onUpdateTripEvent: this.#handleTripEventChange,
         onOpenEditForm: this.#handleOpenEditEvent
       });
       this.#tripEventPresenters.set(tripEvent.id, tripEventPresenter);

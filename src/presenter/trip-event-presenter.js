@@ -7,17 +7,17 @@ export default class TripEventPresenter {
   #offers = [];
   #destinations = [];
   #eventsListContainer = null;
-  #onClickFavoriteButton = null;
+  #onUpdateTripEvent = null;
   #tripEventComponent = null;
   #editTripEventComponent = null;
   #onOpenEditForm = null;
   #isOpenEdit = false;
 
-  constructor({offers, destinations, eventsListContainer, onClickFavoriteButton, onOpenEditForm}) {
+  constructor({offers, destinations, eventsListContainer, onUpdateTripEvent, onOpenEditForm}) {
     this.#offers = offers;
     this.#destinations = destinations;
     this.#eventsListContainer = eventsListContainer;
-    this.#onClickFavoriteButton = onClickFavoriteButton;
+    this.#onUpdateTripEvent = onUpdateTripEvent;
     this.#onOpenEditForm = onOpenEditForm;
   }
 
@@ -42,7 +42,7 @@ export default class TripEventPresenter {
       tripEvent: this.#tripEvent,
       offers: this.#offers,
       destinations: this.#destinations,
-      onSubmit: this.#closeEdit,
+      onSubmit: this.#onSubmit,
       onClickRollupButton: this.#closeEdit
     });
 
@@ -52,7 +52,12 @@ export default class TripEventPresenter {
       return;
     }
 
-    replace(this.#tripEventComponent, prevTripEventComponent);
+    if (this.#isOpenEdit) {
+      replace(this.#editTripEventComponent, prevEditTripEventComponent);
+    } else {
+      replace(this.#tripEventComponent, prevTripEventComponent);
+    }
+
     remove(prevTripEventComponent);
     remove(prevEditTripEventComponent);
   }
@@ -60,13 +65,13 @@ export default class TripEventPresenter {
   #escKeyDown = (evt) => {
     if (evt.key === 'Escape' || evt.key === 'Esc') {
       evt.preventDefault();
-      this.#closeEdit();
+      this.reset();
       document.removeEventListener('keydown', this.#escKeyDown);
     }
   };
 
   #toggleFavoriteState = () => {
-    this.#onClickFavoriteButton({...this.#tripEvent, isFavorite: !this.#tripEvent.isFavorite});
+    this.#onUpdateTripEvent({...this.#tripEvent, isFavorite: !this.#tripEvent.isFavorite});
   };
 
   #openEdit = () => {
@@ -82,8 +87,14 @@ export default class TripEventPresenter {
     this.#isOpenEdit = false;
   };
 
+  #onSubmit = (tripEvent) => {
+    this.#onUpdateTripEvent(tripEvent);
+    this.#closeEdit();
+  };
+
   reset = () => {
     if (this.#isOpenEdit) {
+      this.#editTripEventComponent.reset(this.#tripEvent);
       this.#closeEdit();
     }
   };
