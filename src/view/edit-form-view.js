@@ -1,5 +1,8 @@
 import {getDateWithTime, getEventTypeIconSrc} from '../utils/common';
 import AbstractStatefulView from '../framework/view/abstract-stateful-view';
+import flatpickr from 'flatpickr';
+
+import 'flatpickr/dist/flatpickr.min.css';
 
 const DEFAULT_TYPE = 'taxi';
 const TRIP_EVENT_DEFAULT = {
@@ -130,6 +133,8 @@ export default class EditFormView extends AbstractStatefulView {
   #offers = [];
   #onSubmit = null;
   #onClickRollupButton = null;
+  #datepickerDateFrom = null;
+  #datepickerDateTo = null;
 
   constructor({tripEvent, offers, destinations, onSubmit, onClickRollupButton = TRIP_EVENT_DEFAULT}) {
     super();
@@ -140,6 +145,19 @@ export default class EditFormView extends AbstractStatefulView {
 
     this._setState(EditFormView.parseTripEventToState(tripEvent));
     this._restoreHandlers();
+  }
+
+  #getDatepicker(dateElement, defaultDate, onChange) {
+    return flatpickr(
+      dateElement,
+      {
+        enableTime: true,
+        'time_24hr': true,
+        dateFormat: 'd/m/y H:i',
+        defaultDate: defaultDate,
+        onChange: onChange
+      }
+    );
   }
 
   #formSubmitHandler = (evt) => {
@@ -168,15 +186,23 @@ export default class EditFormView extends AbstractStatefulView {
 
   #onChangeOffer = (evt) => {
     const offers = this._state.offers;
-    const offerId = evt.target.name;
+    const offerId = Number(evt.target.name);
 
     if (offers.has(offerId)) {
       offers.delete(offerId);
     } else {
-      offers.add(Number(evt.target.name));
+      offers.add(offerId);
     }
 
     this._setState({offers: offers});
+  };
+
+  #onChangeDateFrom = (newDate) => {
+    this._setState({dateFrom: newDate});
+  };
+
+  #onChangeDateTo = (newDate) => {
+    this._setState({dateTo: newDate});
   };
 
   get template() {
@@ -184,19 +210,11 @@ export default class EditFormView extends AbstractStatefulView {
   }
 
   static parseTripEventToState(tripEvent) {
-    const state = {...tripEvent};
-
-    state.offers = new Set(state.offers);
-
-    return state;
+    return {...tripEvent, offers: new Set(tripEvent.offers)};
   }
 
   static parseStateToTripEvent(state) {
-    const tripEvent = {...state};
-
-    tripEvent.offers = Array.from(tripEvent.offers);
-
-    return tripEvent;
+    return {...state, offers: Array.from(state.offers)};
   }
 
   _restoreHandlers() {
@@ -206,9 +224,28 @@ export default class EditFormView extends AbstractStatefulView {
     this.element.querySelector(`#event-destination-${this._state.id}`).addEventListener('change', this.#onChangeDestinationHandler);
     this.element.querySelector(`#event-price-${this._state.id}`).addEventListener('change', this.#onChangePrice);
     this.element.querySelector('.event__available-offers').addEventListener('change', this.#onChangeOffer);
+
+    this.#datepickerDateFrom = this.#getDatepicker(
+      this.element.querySelector(`#event-start-time-${this._state.id}`),
+      this._state.dateFrom,
+      this.#onChangeDateFrom
+    );
+    this.#datepickerDateTo = this.#getDatepicker(
+      this.element.querySelector(`#event-end-time-${this._state.id}`),
+      this._state.dateTo,
+      this.#onChangeDateTo
+    );
   }
 
   reset(tripEvent) {
     this.updateElement(EditFormView.parseTripEventToState(tripEvent));
+  }
+
+  removeElement() {
+    super.removeElement();
+    this.#datepickerDateFrom.destroy();
+    this.#datepickerDateTo.destroy();
+    this.#datepickerDateFrom = null;
+    this.#datepickerDateTo = null;
   }
 }
