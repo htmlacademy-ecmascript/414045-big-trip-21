@@ -186,12 +186,12 @@ export default class EditFormView extends AbstractStatefulView {
 
   #onChangeOffer = (evt) => {
     const offers = this._state.offers;
-    const offerId = evt.target.name;
+    const offerId = Number(evt.target.name);
 
     if (offers.has(offerId)) {
       offers.delete(offerId);
     } else {
-      offers.add(Number(evt.target.name));
+      offers.add(offerId);
     }
 
     this._setState({offers: offers});
@@ -210,19 +210,11 @@ export default class EditFormView extends AbstractStatefulView {
   }
 
   static parseTripEventToState(tripEvent) {
-    const state = {...tripEvent};
-
-    state.offers = new Set(state.offers);
-
-    return state;
+    return {...tripEvent, offers: new Set(tripEvent.offers)};
   }
 
   static parseStateToTripEvent(state) {
-    const tripEvent = {...state};
-
-    tripEvent.offers = Array.from(tripEvent.offers);
-
-    return tripEvent;
+    return {...state, offers: Array.from(state.offers)};
   }
 
   _restoreHandlers() {
