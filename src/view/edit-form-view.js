@@ -152,7 +152,7 @@ export default class EditFormView extends AbstractStatefulView {
       dateElement,
       {
         enableTime: true,
-        time_24hr: true,
+        'time_24hr': true,
         dateFormat: 'd/m/y H:i',
         defaultDate: defaultDate,
         onChange: onChange
