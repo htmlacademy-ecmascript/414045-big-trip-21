@@ -23,21 +23,31 @@ const DESTINATION_NAMES = [
   'Milano'
 ];
 
-const FILTERS = [
-  'everything',
-  'future',
-  'present',
-  'past'
-];
-
-const DEFAULT_FILTER_ACTIVE = 'past';
-
-const DEFAULT_SORT_ACTIVE = 'day';
-
 const SortType = {
-  DEFAULT: 'sort-day',
-  TIME: 'sort-time',
-  PRICE: 'sort-price'
+  DAY: 'day',
+  EVENT: 'event',
+  TIME: 'time',
+  PRICE: 'price',
+  OFFER: 'offer'
+};
+
+const UserAction = {
+  CREATE_TRIP_EVENT: 'CREATE_TRIP_EVENT',
+  UPDATE_TRIP_EVENT: 'UPDATE_TRIP_EVENT',
+  DELETE_TRIP_EVENT: 'DELETE_TRIP_EVENT'
+};
+
+const UpdateType = {
+  PATCH: 'PATCH',
+  MINOR: 'MINOR',
+  MAJOR: 'MAJOR'
+};
+
+const FilterType = {
+  EVERYTHING: 'everything',
+  FUTURE: 'future',
+  PRESENT: 'present',
+  PAST: 'past'
 };
 
 export {
@@ -48,8 +58,8 @@ export {
   MILLISECOND_IN_HOUR,
   MILLISECOND_IN_MINUTE,
   MINUTES_IN_DAY,
-  DEFAULT_SORT_ACTIVE,
-  FILTERS,
-  DEFAULT_FILTER_ACTIVE,
-  SortType
+  SortType,
+  UserAction,
+  UpdateType,
+  FilterType
 };
