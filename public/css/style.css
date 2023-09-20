@@ -644,6 +644,21 @@ main {
   .event__field-group--destination {
     width: 290px; }
 
+.event__field-group-container.has-danger {
+  .event__field-group {
+    border-bottom: 1px solid crimson;
+  }
+}
+
+.event__field-group-error {
+  color: crimson;
+  font-size: small;
+  font-weight: bold;
+  padding: 5px 2px;
+  margin: 0;
+  word-break: break-all;
+}
+
 .event__label {
   margin-right: 5px;
   cursor: pointer; }

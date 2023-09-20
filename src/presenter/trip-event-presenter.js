@@ -1,6 +1,7 @@
 import TripEventView from '../view/trip-event-view';
 import EditFormView from '../view/edit-form-view';
 import {remove, render, replace} from '../framework/render';
+import {UpdateType, TripEventUserAction} from '../const';
 
 export default class TripEventPresenter {
   #tripEvent = null;
@@ -11,14 +12,16 @@ export default class TripEventPresenter {
   #tripEventComponent = null;
   #editTripEventComponent = null;
   #onOpenEditForm = null;
+  #handleViewAction = null;
   #isOpenEdit = false;
 
-  constructor({offers, destinations, eventsListContainer, onUpdateTripEvent, onOpenEditForm}) {
+  constructor({offers, destinations, eventsListContainer, onUpdateTripEvent, onOpenEditForm, handleViewAction}) {
     this.#offers = offers;
     this.#destinations = destinations;
     this.#eventsListContainer = eventsListContainer;
     this.#onUpdateTripEvent = onUpdateTripEvent;
     this.#onOpenEditForm = onOpenEditForm;
+    this.#handleViewAction = handleViewAction;
   }
 
   init(tripEvent) {
@@ -43,7 +46,8 @@ export default class TripEventPresenter {
       offers: this.#offers,
       destinations: this.#destinations,
       onSubmit: this.#onSubmit,
-      onClickRollupButton: this.#closeEdit
+      onClickRollupButton: this.#closeEdit,
+      onCLickDeleteButton: this.#handleTripEventDelete
     });
 
     if (prevTripEventComponent === null || prevEditTripEventComponent === null) {
@@ -83,13 +87,16 @@ export default class TripEventPresenter {
 
   #closeEdit = () => {
     replace(this.#tripEventComponent, this.#editTripEventComponent);
-    document.removeEventListener('keydown', this.#escKeyDown);
     this.#isOpenEdit = false;
   };
 
   #onSubmit = (tripEvent) => {
     this.#onUpdateTripEvent(tripEvent);
     this.#closeEdit();
+  };
+
+  #handleTripEventDelete = (tripEventId) => {
+    this.#handleViewAction(TripEventUserAction.DELETE, UpdateType.MAJOR, tripEventId);
   };
 
   reset = () => {
@@ -100,6 +107,7 @@ export default class TripEventPresenter {
   };
 
   destroy() {
+    document.removeEventListener('keydown', this.#escKeyDown);
     remove(this.#tripEventComponent);
     remove(this.#editTripEventComponent);
   }
