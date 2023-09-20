@@ -31,10 +31,10 @@ const SortType = {
   OFFER: 'offer'
 };
 
-const UserAction = {
-  CREATE_TRIP_EVENT: 'CREATE_TRIP_EVENT',
-  UPDATE_TRIP_EVENT: 'UPDATE_TRIP_EVENT',
-  DELETE_TRIP_EVENT: 'DELETE_TRIP_EVENT'
+const TripEventUserAction = {
+  CREATE: 'CREATE',
+  UPDATE: 'UPDATE',
+  DELETE: 'DELETE'
 };
 
 const UpdateType = {
@@ -59,7 +59,7 @@ export {
   MILLISECOND_IN_MINUTE,
   MINUTES_IN_DAY,
   SortType,
-  UserAction,
+  TripEventUserAction,
   UpdateType,
   FilterType
 };

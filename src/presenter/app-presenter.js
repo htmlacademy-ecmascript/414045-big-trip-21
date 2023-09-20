@@ -2,7 +2,7 @@ import TripEventsListView from '../view/trip-events-list-view';
 import EmptyTripEventsListView from '../view/empty-trip-events-list-view';
 import {render} from '../framework/render';
 import TripEventPresenter from './trip-event-presenter';
-import {FilterType, SortType, UpdateType, UserAction} from '../const';
+import {FilterType, SortType, UpdateType, TripEventUserAction} from '../const';
 import {filterTripEvents, sortByPrice, sortByTime} from '../utils/trip-event';
 import FiltersPresenter from './filters-presenter';
 import SortsPresenter from './sorts-presenter';
@@ -102,26 +102,22 @@ export default class AppPresenter {
     this.#tripEventPresenters.forEach((tripEventPresenter) => tripEventPresenter.reset());
   };
 
-  #clearTripEventsList(resetSortType = false) {
+  #clearTripEventsList() {
     this.#tripEventPresenters.forEach((presenter) => presenter.destroy());
     this.#tripEventPresenters.clear();
-
-    if (resetSortType) {
-      this.#sortModel.set = SortType.DAY;
-    }
   }
 
-  #handleModelEvent = (updateType, data) => {
+  #handleModelEvent = (updateType, tripEvent) => {
     switch (updateType) {
       case UpdateType.PATCH:
-        this.#tripEventPresenters.get(data.id).init(data);
+        this.#tripEventPresenters.get(tripEvent.id).init(tripEvent);
         break;
       case UpdateType.MINOR:
         this.#clearTripEventsList();
         this.#renderTripEventsList();
         break;
       case UpdateType.MAJOR:
-        this.#clearTripEventsList(true);
+        this.#clearTripEventsList();
         this.#renderTripEventsList();
         break;
     }
@@ -153,15 +149,16 @@ export default class AppPresenter {
     if (this.#addTripEventPresenter) {
       this.#addTripEventPresenter.destroy();
       this.#addTripEventPresenter = null;
+      this.#newEventButton.disabled = false;
     }
   };
 
   #handleViewAction = (actionType, updateType, data) => {
     switch (actionType) {
-      case UserAction.CREATE_TRIP_EVENT:
+      case TripEventUserAction.CREATE:
         this.#tripEventModel.addTripEvent(updateType, data);
         break;
-      case UserAction.DELETE_TRIP_EVENT:
+      case TripEventUserAction.DELETE:
         this.#tripEventModel.deleteTripEvent(updateType, data);
         break;
     }

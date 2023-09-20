@@ -19,10 +19,11 @@ export default class TripEventModel extends Observable {
   }
 
   addTripEvent(updateType, tripEvent) {
-    tripEvent.id = this.#tripEvents.length + 1;
-
     this.#tripEvents = [
-      tripEvent,
+      {
+        ...tripEvent,
+        id: this.#tripEvents.length + 1
+      },
       ...this.#tripEvents
     ];
 

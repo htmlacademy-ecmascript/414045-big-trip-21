@@ -1,7 +1,7 @@
 import TripEventView from '../view/trip-event-view';
 import EditFormView from '../view/edit-form-view';
 import {remove, render, replace} from '../framework/render';
-import {UpdateType, UserAction} from '../const';
+import {UpdateType, TripEventUserAction} from '../const';
 
 export default class TripEventPresenter {
   #tripEvent = null;
@@ -87,7 +87,6 @@ export default class TripEventPresenter {
 
   #closeEdit = () => {
     replace(this.#tripEventComponent, this.#editTripEventComponent);
-    document.removeEventListener('keydown', this.#escKeyDown);
     this.#isOpenEdit = false;
   };
 
@@ -97,7 +96,7 @@ export default class TripEventPresenter {
   };
 
   #handleTripEventDelete = (tripEventId) => {
-    this.#handleViewAction(UserAction.DELETE_TRIP_EVENT, UpdateType.MAJOR, tripEventId);
+    this.#handleViewAction(TripEventUserAction.DELETE, UpdateType.MAJOR, tripEventId);
   };
 
   reset = () => {
@@ -108,6 +107,7 @@ export default class TripEventPresenter {
   };
 
   destroy() {
+    document.removeEventListener('keydown', this.#escKeyDown);
     remove(this.#tripEventComponent);
     remove(this.#editTripEventComponent);
   }

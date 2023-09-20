@@ -1,6 +1,6 @@
 import EditFormView from '../view/edit-form-view';
 import {remove, render, RenderPosition} from '../framework/render';
-import {UpdateType, UserAction} from '../const';
+import {UpdateType, TripEventUserAction} from '../const';
 
 export default class AddTripEventPresenter {
   #offers = [];
@@ -9,6 +9,7 @@ export default class AddTripEventPresenter {
   #onClose = null;
   #createTripEventComponent = null;
   #handleViewAction = null;
+  #newEventButton = document.querySelector('.trip-main__event-add-btn');
 
   constructor({offers, destinations, container, onClose, handleViewAction}) {
     this.#offers = offers;
@@ -32,11 +33,12 @@ export default class AddTripEventPresenter {
   }
 
   destroy() {
+    document.removeEventListener('keydown', this.#escKeyDown);
     remove(this.#createTripEventComponent);
   }
 
   #handleFormSubmit = (tripEvent) => {
-    this.#handleViewAction(UserAction.CREATE_TRIP_EVENT, UpdateType.MAJOR, tripEvent);
+    this.#handleViewAction(TripEventUserAction.CREATE, UpdateType.MAJOR, tripEvent);
     this.#onClose();
     this.destroy();
   };
@@ -46,13 +48,11 @@ export default class AddTripEventPresenter {
       evt.preventDefault();
       this.#onClose();
       this.destroy();
-      document.removeEventListener('keydown', this.#escKeyDown);
     }
   };
 
   #onClickCancelButton = () => {
     this.#onClose();
     this.destroy();
-    document.removeEventListener('keydown', this.#escKeyDown);
   };
 }
