@@ -9,7 +9,6 @@ export default class AddTripEventPresenter {
   #onClose = null;
   #createTripEventComponent = null;
   #handleViewAction = null;
-  #newEventButton = document.querySelector('.trip-main__event-add-btn');
 
   constructor({offers, destinations, container, onClose, handleViewAction}) {
     this.#offers = offers;
