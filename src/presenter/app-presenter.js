@@ -7,9 +7,9 @@ import {filterTripEvents, sortByPrice, sortByTime} from '../utils/trip-event';
 import FiltersPresenter from './filters-presenter';
 import SortsPresenter from './sorts-presenter';
 import AddTripEventPresenter from './add-trip-event-presenter';
-import TripEventModel from "../model/trip-event-model";
-import OfferModel from "../model/offer-model";
-import DestinationModel from "../model/destination-model";
+import TripEventModel from '../model/trip-event-model';
+import OfferModel from '../model/offer-model';
+import DestinationModel from '../model/destination-model';
 
 export default class AppPresenter {
   #destinations = [];
