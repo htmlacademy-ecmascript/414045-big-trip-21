@@ -1,7 +1,7 @@
 import TripEventView from '../view/trip-event-view';
 import EditFormView from '../view/edit-form-view';
 import {remove, render, replace} from '../framework/render';
-import {UpdateType, TripEventUserAction} from '../const';
+import {TripEventUserAction, UpdateType} from '../const';
 
 export default class TripEventPresenter {
   #tripEvent = null;
@@ -91,8 +91,7 @@ export default class TripEventPresenter {
   };
 
   #onSubmit = (tripEvent) => {
-    this.#onUpdateTripEvent(tripEvent);
-    this.#closeEdit();
+    this.#handleViewAction(TripEventUserAction.UPDATE, UpdateType.MAJOR, tripEvent);
   };
 
   #handleTripEventDelete = (tripEventId) => {
@@ -110,5 +109,35 @@ export default class TripEventPresenter {
     document.removeEventListener('keydown', this.#escKeyDown);
     remove(this.#tripEventComponent);
     remove(this.#editTripEventComponent);
+  }
+
+  setSaving() {
+    if (this.#isOpenEdit) {
+      this.#editTripEventComponent.updateElement({
+        isDisabled: true,
+        isSaving: true
+      });
+    }
+  }
+
+  setDeleting() {
+    if (this.#isOpenEdit) {
+      this.#editTripEventComponent.updateElement({
+        isDisabled: true,
+        isDeleting: true
+      });
+    }
+  }
+
+  setAborting() {
+    const resetFormState = () => {
+      this.#editTripEventComponent.updateElement({
+        isDisabled: false,
+        isSaving: false,
+        isDeleting: false
+      });
+    };
+
+    this.#editTripEventComponent.shake(resetFormState);
   }
 }

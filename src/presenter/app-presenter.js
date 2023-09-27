@@ -2,7 +2,7 @@ import TripEventsListView from '../view/trip-events-list-view';
 import EmptyTripEventsListView from '../view/empty-trip-events-list-view';
 import {render} from '../framework/render';
 import TripEventPresenter from './trip-event-presenter';
-import {FilterType, SortType, UpdateType, TripEventUserAction} from '../const';
+import {FilterType, SortType, TripEventUserAction, UpdateType} from '../const';
 import {filterTripEvents, sortByPrice, sortByTime} from '../utils/trip-event';
 import FiltersPresenter from './filters-presenter';
 import SortsPresenter from './sorts-presenter';
@@ -10,6 +10,12 @@ import AddTripEventPresenter from './add-trip-event-presenter';
 import TripEventModel from '../model/trip-event-model';
 import OfferModel from '../model/offer-model';
 import DestinationModel from '../model/destination-model';
+import UiBlocker from '../framework/ui-blocker/ui-blocker';
+
+const TimeLimit = {
+  LOWER_LIMIT: 350,
+  UPPER_LIMIT: 1000
+};
 
 export default class AppPresenter {
   #destinations = [];
@@ -31,6 +37,10 @@ export default class AppPresenter {
   #isLoadingTripEvents = true;
   #isLoadingDestinations = true;
   #isLoadingOffers = true;
+  #uiBlocker = new UiBlocker({
+    lowerLimit: TimeLimit.LOWER_LIMIT,
+    upperLimit: TimeLimit.UPPER_LIMIT
+  });
 
   constructor({tripEventModel, destinationModel, offerModel, filterModel, sortModel}) {
     this.#tripEventModel = tripEventModel;
@@ -106,7 +116,6 @@ export default class AppPresenter {
 
   #handleTripEventChange = (updatedTripEvent) => {
     this.#tripEventModel.updateTripEvent(UpdateType.PATCH, updatedTripEvent);
-    this.#tripEventPresenters.get(updatedTripEvent.id).init(updatedTripEvent);
   };
 
   #handleOpenEditEvent = () => {
@@ -125,10 +134,12 @@ export default class AppPresenter {
         this.#tripEventPresenters.get(data.id).init(data);
         break;
       case UpdateType.MINOR:
+        this.#closeCreateForm();
         this.#clearTripEventsList();
         this.#renderTripEventsList();
         break;
       case UpdateType.MAJOR:
+        this.#closeCreateForm();
         this.#clearTripEventsList();
         this.#renderTripEventsList();
         break;
@@ -173,7 +184,6 @@ export default class AppPresenter {
 
   #handlerCloseCreateTripEventForm = () => {
     this.#newEventButton.disabled = false;
-    this.#addTripEventPresenter = null;
   };
 
   #closeCreateForm = () => {
@@ -184,14 +194,36 @@ export default class AppPresenter {
     }
   };
 
-  #handleViewAction = (actionType, updateType, data) => {
+  #handleViewAction = async (actionType, updateType, data) => {
+    this.#uiBlocker.block();
+
     switch (actionType) {
       case TripEventUserAction.CREATE:
-        this.#tripEventModel.addTripEvent(updateType, data);
+        try {
+          this.#addTripEventPresenter.setSaving();
+          await this.#tripEventModel.addTripEvent(updateType, data);
+        } catch (error) {
+          this.#addTripEventPresenter.setAborting();
+        }
+        break;
+      case TripEventUserAction.UPDATE:
+        try {
+          this.#tripEventPresenters.get(data.id).setSaving();
+          await this.#tripEventModel.updateTripEvent(updateType, data);
+        } catch (error) {
+          this.#tripEventPresenters.get(data.id).setAborting();
+        }
         break;
       case TripEventUserAction.DELETE:
-        this.#tripEventModel.deleteTripEvent(updateType, data);
+        try {
+          this.#tripEventPresenters.get(data).setDeleting();
+          await this.#tripEventModel.deleteTripEvent(updateType, data);
+        } catch (error) {
+          this.#tripEventPresenters.get(data).setAborting();
+        }
         break;
     }
+
+    this.#uiBlocker.unblock();
   };
 }
