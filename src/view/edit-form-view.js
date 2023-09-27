@@ -14,7 +14,6 @@ import {
 
 const DEFAULT_TYPE = 'taxi';
 const TRIP_EVENT_DEFAULT = {
-  id: null,
   basePrice: 0,
   dateFrom: new Date(),
   dateTo: new Date(),
@@ -24,8 +23,23 @@ const TRIP_EVENT_DEFAULT = {
   type: DEFAULT_TYPE
 };
 
-function createTemplate(tripEvent, destinations, offers, isCreateTripEvent) {
+function createTemplate(data, destinations, offers, isCreateTripEvent) {
+  const {
+    isDisabled,
+    isSaving,
+    isDeleting
+  } = data;
+  const tripEvent = {
+    id: data.id,
+    basePrice: data.basePrice,
+    dateFrom: data.dateFrom,
+    dateTo: data.dateTo,
+    destination: data.destination,
+    type: data.type,
+    offers: data.offers
+  };
   const eventDestination = destinations.find((destination) => destination.id === tripEvent.destination);
+  const deleteButtonText = isDeleting ? 'Deleting...' : 'Delete';
 
   return (
     `<form class="event event--edit" action="#" method="post">
@@ -35,7 +49,7 @@ function createTemplate(tripEvent, destinations, offers, isCreateTripEvent) {
             <span class="visually-hidden">Choose event type</span>
             <img class="event__type-icon" width="17" height="17" src="${getEventTypeIconSrc(tripEvent.type)}" alt="Event type icon">
           </label>
-          <input class="event__type-toggle  visually-hidden" id="event-type-toggle-${tripEvent.id}" type="checkbox">
+          <input class="event__type-toggle  visually-hidden" id="event-type-toggle-${tripEvent.id}" type="checkbox" ${isDisabled ? 'disabled' : ''}>
             ${createEventTypeListTemplate(offers, tripEvent.id)}
         </div>
         <div class="event__field-group-container">
@@ -43,7 +57,7 @@ function createTemplate(tripEvent, destinations, offers, isCreateTripEvent) {
             <label class="event__label  event__type-output" for="event-destination-${tripEvent.id}">
               ${tripEvent.type}
             </label>
-            <input class="event__input  event__input--destination" id="event-destination-${tripEvent.id}" type="text" name="event-destination" value="${tripEvent.destination ? eventDestination.name : ''}" list="destination-list-${tripEvent.id}">
+            <input class="event__input  event__input--destination" id="event-destination-${tripEvent.id}" type="text" name="event-destination" value="${tripEvent.destination ? eventDestination.name : ''}" list="destination-list-${tripEvent.id}" ${isDisabled ? 'disabled' : ''}>
             <datalist id="destination-list-${tripEvent.id}">
               ${destinations.map((destination) => `<option value="${destination.name}"></option>`).join('')}
             </datalist>
@@ -52,10 +66,10 @@ function createTemplate(tripEvent, destinations, offers, isCreateTripEvent) {
         <div class="event__field-group-container">
           <div class="event__field-group  event__field-group--time">
             <label class="visually-hidden" for="event-start-time-${tripEvent.id}">From</label>
-            <input class="event__input  event__input--time" id="event-start-time-${tripEvent.id}" type="text" name="event-start-time" value="${getDateWithTime(tripEvent.dateFrom)}">
+            <input class="event__input  event__input--time" id="event-start-time-${tripEvent.id}" type="text" name="event-start-time" value="${getDateWithTime(tripEvent.dateFrom)}" ${isDisabled ? 'disabled' : ''}>
             &mdash;
             <label class="visually-hidden" for="event-end-time-${tripEvent.id}">To</label>
-            <input class="event__input  event__input--time" id="event-end-time-${tripEvent.id}" type="text" name="event-end-time" value="${getDateWithTime(tripEvent.dateTo)}">
+            <input class="event__input  event__input--time" id="event-end-time-${tripEvent.id}" type="text" name="event-end-time" value="${getDateWithTime(tripEvent.dateTo)}" ${isDisabled ? 'disabled' : ''}>
           </div>
         </div>
         <div class="event__field-group-container">
@@ -64,18 +78,18 @@ function createTemplate(tripEvent, destinations, offers, isCreateTripEvent) {
               <span class="visually-hidden">Price</span>
               &euro;
             </label>
-            <input class="event__input  event__input--price" id="event-price-${tripEvent.id}" type="text" name="event-price" value="${tripEvent.basePrice ?? ''}">
+            <input class="event__input  event__input--price" id="event-price-${tripEvent.id}" type="text" name="event-price" value="${tripEvent.basePrice ?? ''}" ${isDisabled ? 'disabled' : ''}>
           </div>
         </div>
-        <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-        <button class="event__reset-btn" type="reset">${isCreateTripEvent ? 'Cancel' : 'Delete'}</button>
+        <button class="event__save-btn  btn  btn--blue" type="submit" ${isDisabled ? 'disabled' : ''}>${isSaving ? 'Saving...' : 'Save'}</button>
+        <button class="event__reset-btn" type="reset" ${isDisabled ? 'disabled' : ''}>${isCreateTripEvent ? 'Cancel' : deleteButtonText}</button>
         ${isCreateTripEvent ? '' : '<button class="event__rollup-btn" type="button">\n <span class="visually-hidden">Open event</span>\n </button>'}
       </header>
       <section class="event__details">
         <section class="event__section  event__section--offers">
           <h3 class="event__section-title  event__section-title--offers">Offers</h3>
             <div class="event__available-offers">
-              ${createOffersTemplate(tripEvent, offers)}
+              ${createOffersTemplate(tripEvent, offers, isDisabled)}
             </div>
         </section>
           ${tripEvent.destination ? `<section class="event__section  event__section--destination">
@@ -88,11 +102,11 @@ function createTemplate(tripEvent, destinations, offers, isCreateTripEvent) {
   );
 }
 
-function createOffersTemplate(tripEvent, offers) {
+function createOffersTemplate(tripEvent, offers, isDisabled) {
   const currentTypeOffers = offers.find((typeOffers) => typeOffers.type === tripEvent.type).offers;
   return currentTypeOffers.map((offer) => `<div class="event__offer-selector">
             <input class="event__offer-checkbox  visually-hidden" id="event-offer-luggage-${offer.id}" type="checkbox" name="${offer.id}"
-                ${tripEvent.offers.has(offer.id) ? 'checked' : ''}>
+                ${tripEvent.offers.has(offer.id) ? 'checked' : ''} ${isDisabled ? 'disabled' : ''}>
             <label class="event__offer-label" for="event-offer-luggage-${offer.id}">
                 <span class="event__offer-title">${offer.title}</span>
                 &plus;&euro;&nbsp;
@@ -252,7 +266,7 @@ export default class EditFormView extends AbstractStatefulView {
 
   #onChangeOffer = (evt) => {
     const offers = this._state.offers;
-    const offerId = Number(evt.target.name);
+    const offerId = evt.target.name;
 
     if (offers.has(offerId)) {
       offers.delete(offerId);
@@ -263,12 +277,12 @@ export default class EditFormView extends AbstractStatefulView {
     this._setState({offers: offers});
   };
 
-  #onChangeDateFrom = (newDate) => {
-    this._setState({dateFrom: Date.parse(newDate)});
+  #onChangeDateFrom = ([newDate]) => {
+    this._setState({dateFrom: newDate});
   };
 
-  #onChangeDateTo = (newDate) => {
-    this._setState({dateTo: Date.parse(newDate)});
+  #onChangeDateTo = ([newDate]) => {
+    this._setState({dateTo: newDate});
   };
 
   #onDelete = () => {
@@ -280,11 +294,23 @@ export default class EditFormView extends AbstractStatefulView {
   }
 
   static parseTripEventToState(tripEvent) {
-    return {...tripEvent, offers: new Set(tripEvent.offers)};
+    return {
+      ...tripEvent,
+      offers: new Set(tripEvent.offers),
+      isDisabled: false,
+      isSaving: false,
+      isDeleting: false
+    };
   }
 
   static parseStateToTripEvent(state) {
-    return {...state, offers: Array.from(state.offers)};
+    const tripEvent = {...state, offers: Array.from(state.offers)};
+
+    delete tripEvent.isDisabled;
+    delete tripEvent.isSaving;
+    delete tripEvent.isDeleting;
+
+    return tripEvent;
   }
 
   _restoreHandlers() {
