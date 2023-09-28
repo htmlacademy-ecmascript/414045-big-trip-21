@@ -1,9 +1,9 @@
 import TripEventsListView from '../view/trip-events-list-view';
 import EmptyTripEventsListView from '../view/empty-trip-events-list-view';
-import {render} from '../framework/render';
+import {remove, render} from '../framework/render';
 import TripEventPresenter from './trip-event-presenter';
 import {FilterType, SortType, TripEventUserAction, UpdateType} from '../const';
-import {filterTripEvents, sortByPrice, sortByTime} from '../utils/trip-event';
+import {filterTripEvents, sortByDate, sortByPrice, sortByTime} from '../utils/trip-event';
 import FiltersPresenter from './filters-presenter';
 import SortsPresenter from './sorts-presenter';
 import AddTripEventPresenter from './add-trip-event-presenter';
@@ -11,6 +11,7 @@ import TripEventModel from '../model/trip-event-model';
 import OfferModel from '../model/offer-model';
 import DestinationModel from '../model/destination-model';
 import UiBlocker from '../framework/ui-blocker/ui-blocker';
+import TripInfoPresenter from './trip-info-presenter';
 
 const TimeLimit = {
   LOWER_LIMIT: 350,
@@ -29,6 +30,8 @@ export default class AppPresenter {
   #tripEventsList = new TripEventsListView();
   #filterContainer = document.querySelector('.trip-controls__filters');
   #filtersPresenter = null;
+  #tripInfoPresenter = null;
+  #emptyTipEventListComponent = new EmptyTripEventsListView();
   #sortsPresenter = null;
   #tripEventPresenters = new Map();
   #newEventButton = document.querySelector('.trip-main__event-add-btn');
@@ -58,6 +61,11 @@ export default class AppPresenter {
       sortModel: this.#sortModel,
       container: this.#tripEventsContainer
     });
+    this.#tripInfoPresenter = new TripInfoPresenter({
+      tripEventModel: this.#tripEventModel,
+      offerModel: this.#offerModel,
+      destinationModel: this.#destinationModel
+    });
 
     this.#filterModel.addObserver(this.#handleModelEvent);
     this.#tripEventModel.addObserver(this.#handleModelEvent);
@@ -69,8 +77,9 @@ export default class AppPresenter {
 
   get tripEvents() {
     const filteredTripEvents = filterTripEvents(this.#filterModel.filter, this.#tripEventModel.tripEvents);
-
     switch (this.#sortModel.sort) {
+      case SortType.DAY:
+        return filteredTripEvents.sort(sortByDate);
       case SortType.TIME:
         return filteredTripEvents.sort(sortByTime);
       case SortType.PRICE:
@@ -81,6 +90,7 @@ export default class AppPresenter {
   }
 
   init() {
+    this.#tripInfoPresenter.init();
     this.#filtersPresenter.init();
   }
 
@@ -92,9 +102,10 @@ export default class AppPresenter {
     }
 
     if (this.tripEvents.length > 0) {
+      remove(this.#emptyTipEventListComponent);
       this.#sortsPresenter.init();
     } else {
-      render(new EmptyTripEventsListView(), this.#tripEventsContainer);
+      render(this.#emptyTipEventListComponent, this.#tripEventsContainer);
     }
 
     this.#offers = this.#offerModel.offers;
