@@ -1,6 +1,6 @@
 import EditFormView from '../view/edit-form-view';
 import {remove, render, RenderPosition} from '../framework/render';
-import {UpdateType, TripEventUserAction} from '../const';
+import {TripEventUserAction, UpdateType} from '../const';
 
 export default class AddTripEventPresenter {
   #offers = [];
@@ -39,7 +39,6 @@ export default class AddTripEventPresenter {
   #handleFormSubmit = (tripEvent) => {
     this.#handleViewAction(TripEventUserAction.CREATE, UpdateType.MAJOR, tripEvent);
     this.#onClose();
-    this.destroy();
   };
 
   #escKeyDown = (evt) => {
@@ -54,4 +53,22 @@ export default class AddTripEventPresenter {
     this.#onClose();
     this.destroy();
   };
+
+  setSaving() {
+    this.#createTripEventComponent.updateElement({
+      isDisabled: true,
+      isSaving: true
+    });
+  }
+
+  setAborting() {
+    const resetFormState = () => {
+      this.#createTripEventComponent.updateElement({
+        isDisabled: false,
+        isSaving: false
+      });
+    };
+
+    this.#createTripEventComponent.shake(resetFormState);
+  }
 }

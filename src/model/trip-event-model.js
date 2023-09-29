@@ -40,16 +40,19 @@ export default class TripEventModel extends Observable {
     this._notify(UpdateType.INIT, TripEventModel.name);
   }
 
-  addTripEvent(updateType, tripEvent) {
-    this.#tripEvents = [
-      {
-        ...tripEvent,
-        id: this.#tripEvents.length + 1
-      },
-      ...this.#tripEvents
-    ];
+  async addTripEvent(updateType, tripEvent) {
+    try {
+      const response = await this.#tripEventApiService.addTripEvent(tripEvent);
+      tripEvent = this.#adaptToClient(response);
+      this.#tripEvents = [
+        tripEvent,
+        ...this.#tripEvents
+      ];
 
-    this._notify(updateType, tripEvent);
+      this._notify(updateType, tripEvent);
+    } catch (error) {
+      throw new Error('Can\'t add trip event');
+    }
   }
 
   async updateTripEvent(updateType, tripEvent) {
@@ -63,8 +66,13 @@ export default class TripEventModel extends Observable {
     }
   }
 
-  deleteTripEvent(updateType, tripEventId) {
-    this.#tripEvents = this.#tripEvents.filter((tripEvent) => tripEvent.id !== tripEventId);
-    this._notify(updateType);
+  async deleteTripEvent(updateType, tripEventId) {
+    try {
+      await this.#tripEventApiService.deleteTripEvent(tripEventId);
+      this.#tripEvents = this.#tripEvents.filter((tripEvent) => tripEvent.id !== tripEventId);
+      this._notify(updateType);
+    } catch (error) {
+      throw new Error('Can\'t delete trip event');
+    }
   }
 }
