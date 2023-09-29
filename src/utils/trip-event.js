@@ -17,8 +17,6 @@ function getEventDuration(event) {
 }
 
 function filterTripEvents(filterType, tripEvents) {
-
-
   switch (filterType) {
     case FilterType.PAST:
       return getPastTripEvents(tripEvents);

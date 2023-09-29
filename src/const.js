@@ -5,6 +5,9 @@ const MILLISECOND_IN_MINUTE = 60000;
 const MILLISECOND_IN_HOUR = MILLISECOND_IN_MINUTE * 60;
 const MILLISECOND_IN_DAY = MILLISECOND_IN_HOUR * 24;
 
+const AUTHORIZATION = 'Basic hf92hf92yh498hr89h';
+const HOST_API = 'https://21.objects.pages.academy/big-trip';
+
 const EVENT_TYPES = [
   'taxi',
   'bus',
@@ -40,7 +43,8 @@ const TripEventUserAction = {
 const UpdateType = {
   PATCH: 'PATCH',
   MINOR: 'MINOR',
-  MAJOR: 'MAJOR'
+  MAJOR: 'MAJOR',
+  INIT: 'INIT'
 };
 
 const FilterType = {
@@ -50,7 +54,16 @@ const FilterType = {
   PAST: 'past'
 };
 
+const HTTP_METHOD = {
+  GET: 'GET',
+  POST: 'POST',
+  PUT: 'PUT',
+  DELETE: 'DELETE'
+};
+
 export {
+  AUTHORIZATION,
+  HOST_API,
   COUNT_OFFERS_IN_EVENT_TYPE,
   EVENT_TYPES,
   DESTINATION_NAMES,
@@ -58,6 +71,7 @@ export {
   MILLISECOND_IN_HOUR,
   MILLISECOND_IN_MINUTE,
   MINUTES_IN_DAY,
+  HTTP_METHOD,
   SortType,
   TripEventUserAction,
   UpdateType,

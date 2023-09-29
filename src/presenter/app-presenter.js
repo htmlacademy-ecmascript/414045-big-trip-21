@@ -7,6 +7,9 @@ import {filterTripEvents, sortByPrice, sortByTime} from '../utils/trip-event';
 import FiltersPresenter from './filters-presenter';
 import SortsPresenter from './sorts-presenter';
 import AddTripEventPresenter from './add-trip-event-presenter';
+import TripEventModel from '../model/trip-event-model';
+import OfferModel from '../model/offer-model';
+import DestinationModel from '../model/destination-model';
 
 export default class AppPresenter {
   #destinations = [];
@@ -24,6 +27,10 @@ export default class AppPresenter {
   #tripEventPresenters = new Map();
   #newEventButton = document.querySelector('.trip-main__event-add-btn');
   #addTripEventPresenter = null;
+  #isLoading = true;
+  #isLoadingTripEvents = true;
+  #isLoadingDestinations = true;
+  #isLoadingOffers = true;
 
   constructor({tripEventModel, destinationModel, offerModel, filterModel, sortModel}) {
     this.#tripEventModel = tripEventModel;
@@ -45,6 +52,8 @@ export default class AppPresenter {
     this.#filterModel.addObserver(this.#handleModelEvent);
     this.#tripEventModel.addObserver(this.#handleModelEvent);
     this.#sortModel.addObserver(this.#handleModelEvent);
+    this.#offerModel.addObserver(this.#handleModelEvent);
+    this.#destinationModel.addObserver(this.#handleModelEvent);
     this.#newEventButton.addEventListener('click', this.#handlerClickCreateEventButton);
   }
 
@@ -62,21 +71,24 @@ export default class AppPresenter {
   }
 
   init() {
-    this.#destinations = [...this.#destinationModel.destinations];
-    this.#offers = [...this.#offerModel.offers];
-
     this.#filtersPresenter.init();
-
-    if (this.tripEvents.length > 0) {
-      this.#sortsPresenter.init();
-      this.#renderTripEventsList();
-    } else {
-      render(new EmptyTripEventsListView(), this.#tripEventsContainer);
-    }
   }
 
   #renderTripEventsList() {
     render(this.#tripEventsList, this.#tripEventsContainer);
+
+    if (this.#isLoading) {
+      return;
+    }
+
+    if (this.tripEvents.length > 0) {
+      this.#sortsPresenter.init();
+    } else {
+      render(new EmptyTripEventsListView(), this.#tripEventsContainer);
+    }
+
+    this.#offers = this.#offerModel.offers;
+    this.#destinations = this.#destinationModel.destinations;
 
     for (const tripEvent of this.tripEvents) {
       const tripEventPresenter = new TripEventPresenter({
@@ -107,10 +119,10 @@ export default class AppPresenter {
     this.#tripEventPresenters.clear();
   }
 
-  #handleModelEvent = (updateType, tripEvent) => {
+  #handleModelEvent = (updateType, data) => {
     switch (updateType) {
       case UpdateType.PATCH:
-        this.#tripEventPresenters.get(tripEvent.id).init(tripEvent);
+        this.#tripEventPresenters.get(data.id).init(data);
         break;
       case UpdateType.MINOR:
         this.#clearTripEventsList();
@@ -119,6 +131,25 @@ export default class AppPresenter {
       case UpdateType.MAJOR:
         this.#clearTripEventsList();
         this.#renderTripEventsList();
+        break;
+      case UpdateType.INIT:
+        this.#updateLoadingStatus(data);
+        this.#isLoading = this.#isLoadingTripEvents || this.#isLoadingDestinations || this.#isLoadingOffers;
+        this.#renderTripEventsList();
+        break;
+    }
+  };
+
+  #updateLoadingStatus = (modelClassName) => {
+    switch (modelClassName) {
+      case TripEventModel.name:
+        this.#isLoadingTripEvents = false;
+        break;
+      case OfferModel.name:
+        this.#isLoadingOffers = false;
+        break;
+      case DestinationModel.name:
+        this.#isLoadingDestinations = false;
         break;
     }
   };
