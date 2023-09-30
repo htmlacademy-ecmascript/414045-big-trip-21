@@ -205,32 +205,32 @@ export default class AppPresenter {
     }
   };
 
-  #handleViewAction = async (actionType, updateType, data) => {
+  #handleViewAction = async (actionType, updateType, tripEvent) => {
     this.#uiBlocker.block();
 
     switch (actionType) {
       case TripEventUserAction.CREATE:
         try {
           this.#addTripEventPresenter.setSaving();
-          await this.#tripEventModel.addTripEvent(updateType, data);
-        } catch (error) {
+          await this.#tripEventModel.addTripEvent(updateType, tripEvent);
+        } catch {
           this.#addTripEventPresenter.setAborting();
         }
         break;
       case TripEventUserAction.UPDATE:
         try {
-          this.#tripEventPresenters.get(data.id).setSaving();
-          await this.#tripEventModel.updateTripEvent(updateType, data);
-        } catch (error) {
-          this.#tripEventPresenters.get(data.id).setAborting();
+          this.#tripEventPresenters.get(tripEvent.id).setSaving();
+          await this.#tripEventModel.updateTripEvent(updateType, tripEvent);
+        } catch {
+          this.#tripEventPresenters.get(tripEvent.id).setAborting();
         }
         break;
       case TripEventUserAction.DELETE:
         try {
-          this.#tripEventPresenters.get(data).setDeleting();
-          await this.#tripEventModel.deleteTripEvent(updateType, data);
-        } catch (error) {
-          this.#tripEventPresenters.get(data).setAborting();
+          this.#tripEventPresenters.get(tripEvent.id).setDeleting();
+          await this.#tripEventModel.deleteTripEvent(updateType, tripEvent);
+        } catch {
+          this.#tripEventPresenters.get(tripEvent.id).setAborting();
         }
         break;
     }

@@ -1,6 +1,8 @@
 import dayjs from 'dayjs';
 import {FilterType} from '../const';
 
+const MAX_TRIP_EVENT_COUNT_IN_TITLE = 3;
+
 function sortByPrice(eventB, eventA) {
   return eventA.basePrice - eventB.basePrice;
 }
@@ -68,11 +70,11 @@ function getItinerary(tripEvents, destinations) {
 
   let itinerary;
 
-  if (tripEvents.length > 3) {
+  if (tripEvents.length > MAX_TRIP_EVENT_COUNT_IN_TITLE) {
     itinerary = `${startDestination.name} — ... — ${endDestination.name}`;
   }
 
-  if (tripEvents.length <= 3) {
+  if (tripEvents.length <= MAX_TRIP_EVENT_COUNT_IN_TITLE) {
     const destinationNames = [];
 
     tripEventsSortedByDate.forEach((tripEvent) => {
@@ -86,15 +88,8 @@ function getItinerary(tripEvents, destinations) {
 }
 
 function getItineraryTotalPrice(tripEvents, offers) {
-  let totalPrice = 0;
-
-  if (tripEvents.length === 0) {
-    return totalPrice;
-  }
-
-  tripEvents.forEach((tripEvent) => {
+  return tripEvents.reduce((totalPrice, tripEvent) => {
     totalPrice += tripEvent.basePrice;
-
 
     const offersByTripEventType = offers.find((offerItems) => offerItems.type === tripEvent.type);
 
@@ -104,9 +99,8 @@ function getItineraryTotalPrice(tripEvents, offers) {
       }
     });
 
-  });
-
-  return totalPrice;
+    return totalPrice;
+  }, 0);
 }
 
 function getItineraryDates(tripEvents) {

@@ -1,9 +1,9 @@
 import ApiService from '../framework/api-service';
 
-export default class DestinationApiService extends ApiService {
-  get destinations() {
+export default class OffersApiService extends ApiService {
+  get offers() {
     return this._load({
-      url: 'destinations'
+      url: 'offers'
     }).then(ApiService.parseResponse);
   }
 }
