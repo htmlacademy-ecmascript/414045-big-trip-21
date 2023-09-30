@@ -94,8 +94,8 @@ export default class TripEventPresenter {
     this.#handleViewAction(TripEventUserAction.UPDATE, UpdateType.MAJOR, tripEvent);
   };
 
-  #handleTripEventDelete = (tripEventId) => {
-    this.#handleViewAction(TripEventUserAction.DELETE, UpdateType.MAJOR, tripEventId);
+  #handleTripEventDelete = (tripEvent) => {
+    this.#handleViewAction(TripEventUserAction.DELETE, UpdateType.MAJOR, tripEvent);
   };
 
   reset = () => {

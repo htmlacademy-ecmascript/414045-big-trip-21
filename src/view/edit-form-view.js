@@ -23,23 +23,9 @@ const TRIP_EVENT_DEFAULT = {
   type: DEFAULT_TYPE
 };
 
-function createTemplate(data, destinations, offers, isCreateTripEvent) {
-  const {
-    isDisabled,
-    isSaving,
-    isDeleting
-  } = data;
-  const tripEvent = {
-    id: data.id,
-    basePrice: data.basePrice,
-    dateFrom: data.dateFrom,
-    dateTo: data.dateTo,
-    destination: data.destination,
-    type: data.type,
-    offers: data.offers
-  };
+function createTemplate(tripEvent, destinations, offers, isCreateTripEvent) {
   const eventDestination = destinations.find((destination) => destination.id === tripEvent.destination);
-  const deleteButtonText = isDeleting ? 'Deleting...' : 'Delete';
+  const deleteButtonText = tripEvent.isDeleting ? 'Deleting...' : 'Delete';
 
   return (
     `<form class="event event--edit" action="#" method="post">
@@ -49,7 +35,7 @@ function createTemplate(data, destinations, offers, isCreateTripEvent) {
             <span class="visually-hidden">Choose event type</span>
             <img class="event__type-icon" width="17" height="17" src="${getEventTypeIconSrc(tripEvent.type)}" alt="Event type icon">
           </label>
-          <input class="event__type-toggle  visually-hidden" id="event-type-toggle-${tripEvent.id}" type="checkbox" ${isDisabled ? 'disabled' : ''}>
+          <input class="event__type-toggle  visually-hidden" id="event-type-toggle-${tripEvent.id}" type="checkbox" ${tripEvent.isDisabled ? 'disabled' : ''}>
             ${createEventTypeListTemplate(offers, tripEvent.id)}
         </div>
         <div class="event__field-group-container">
@@ -57,7 +43,7 @@ function createTemplate(data, destinations, offers, isCreateTripEvent) {
             <label class="event__label  event__type-output" for="event-destination-${tripEvent.id}">
               ${tripEvent.type}
             </label>
-            <input class="event__input  event__input--destination" id="event-destination-${tripEvent.id}" type="text" name="event-destination" value="${tripEvent.destination ? eventDestination.name : ''}" list="destination-list-${tripEvent.id}" ${isDisabled ? 'disabled' : ''}>
+            <input class="event__input  event__input--destination" id="event-destination-${tripEvent.id}" type="text" name="event-destination" value="${tripEvent.destination ? eventDestination.name : ''}" list="destination-list-${tripEvent.id}" ${tripEvent.sDisabled ? 'disabled' : ''}>
             <datalist id="destination-list-${tripEvent.id}">
               ${destinations.map((destination) => `<option value="${destination.name}"></option>`).join('')}
             </datalist>
@@ -66,10 +52,10 @@ function createTemplate(data, destinations, offers, isCreateTripEvent) {
         <div class="event__field-group-container">
           <div class="event__field-group  event__field-group--time">
             <label class="visually-hidden" for="event-start-time-${tripEvent.id}">From</label>
-            <input class="event__input  event__input--time" id="event-start-time-${tripEvent.id}" type="text" name="event-start-time" value="${getDateWithTime(tripEvent.dateFrom)}" ${isDisabled ? 'disabled' : ''}>
+            <input class="event__input  event__input--time" id="event-start-time-${tripEvent.id}" type="text" name="event-start-time" value="${getDateWithTime(tripEvent.dateFrom)}" ${tripEvent.isDisabled ? 'disabled' : ''}>
             &mdash;
             <label class="visually-hidden" for="event-end-time-${tripEvent.id}">To</label>
-            <input class="event__input  event__input--time" id="event-end-time-${tripEvent.id}" type="text" name="event-end-time" value="${getDateWithTime(tripEvent.dateTo)}" ${isDisabled ? 'disabled' : ''}>
+            <input class="event__input  event__input--time" id="event-end-time-${tripEvent.id}" type="text" name="event-end-time" value="${getDateWithTime(tripEvent.dateTo)}" ${tripEvent.isDisabled ? 'disabled' : ''}>
           </div>
         </div>
         <div class="event__field-group-container">
@@ -78,18 +64,18 @@ function createTemplate(data, destinations, offers, isCreateTripEvent) {
               <span class="visually-hidden">Price</span>
               &euro;
             </label>
-            <input class="event__input  event__input--price" id="event-price-${tripEvent.id}" type="text" name="event-price" value="${tripEvent.basePrice ?? ''}" ${isDisabled ? 'disabled' : ''}>
+            <input class="event__input  event__input--price" id="event-price-${tripEvent.id}" type="text" name="event-price" value="${tripEvent.basePrice ?? ''}" ${tripEvent.isDisabled ? 'disabled' : ''}>
           </div>
         </div>
-        <button class="event__save-btn  btn  btn--blue" type="submit" ${isDisabled ? 'disabled' : ''}>${isSaving ? 'Saving...' : 'Save'}</button>
-        <button class="event__reset-btn" type="reset" ${isDisabled ? 'disabled' : ''}>${isCreateTripEvent ? 'Cancel' : deleteButtonText}</button>
+        <button class="event__save-btn  btn  btn--blue" type="submit" ${tripEvent.isDisabled ? 'disabled' : ''}>${tripEvent.isSaving ? 'Saving...' : 'Save'}</button>
+        <button class="event__reset-btn" type="reset" ${tripEvent.isDisabled ? 'disabled' : ''}>${isCreateTripEvent ? 'Cancel' : deleteButtonText}</button>
         ${isCreateTripEvent ? '' : '<button class="event__rollup-btn" type="button">\n <span class="visually-hidden">Open event</span>\n </button>'}
       </header>
       <section class="event__details">
         <section class="event__section  event__section--offers">
           <h3 class="event__section-title  event__section-title--offers">Offers</h3>
             <div class="event__available-offers">
-              ${createOffersTemplate(tripEvent, offers, isDisabled)}
+              ${createOffersTemplate(tripEvent, offers, tripEvent.isDisabled)}
             </div>
         </section>
           ${tripEvent.destination ? `<section class="event__section  event__section--destination">
@@ -286,7 +272,7 @@ export default class EditFormView extends AbstractStatefulView {
   };
 
   #onDelete = () => {
-    this.#onClickDeleteButton(this._state.id);
+    this.#onClickDeleteButton(EditFormView.parseStateToTripEvent(this._state));
   };
 
   get template() {
