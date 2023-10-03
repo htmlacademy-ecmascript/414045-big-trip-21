@@ -9,7 +9,7 @@ function destinationValidate(destinationId, destinations) {
 }
 
 function diffDateValidate(dateFrom, dateTo) {
-  return dayjs(dateFrom).isBefore(dateTo);
+  return dayjs(dateFrom).isBefore(dateTo) || dayjs(dateFrom).isSame(dateTo);
 }
 
 export {

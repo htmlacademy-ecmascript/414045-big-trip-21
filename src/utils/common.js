@@ -3,20 +3,10 @@ import duration from 'dayjs/plugin/duration';
 import {MILLISECOND_IN_DAY} from '../const';
 
 const DATE_FORMAT = 'MMM DD';
-const TIME_FORMAT = 'HH-mm';
+const TIME_FORMAT = 'HH:mm';
 const DATE_WITH_TIME_FORMAT = 'DD/MM/YY HH:mm';
 
-const LOREM_TEXT = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras aliquet varius magna, non porta ligula feugiat eget. ' +
-  'Fusce tristique felis at fermentum pharetra. Aliquam id orci ut lectus varius viverra. Nullam nunc ex, convallis sed finibus eget, sollicitudin eget ante. ' +
-  'Phasellus eros mauris, condimentum sed nibh vitae, sodales efficitur ipsum. Sed blandit, eros vel aliquam faucibus, purus ex euismod diam, eu luctus nunc ante ut dui. ' +
-  'Sed sed nisi sed augue convallis suscipit in sed felis. Aliquam erat volutpat. Nunc fermentum tortor ac porta dapibus. ' +
-  'In rutrum ac purus sit amet tempus.';
-
 dayjs.extend(duration);
-
-function getRandomElementFromArray(array) {
-  return array[Math.floor(Math.random() * array.length)];
-}
 
 function humanizeDate(date) {
   return getDateByFormat(date, DATE_FORMAT);
@@ -47,47 +37,16 @@ function getDiffTime(dateStart, dateEnd) {
   let format = '';
 
   if (diff >= MILLISECOND_IN_DAY) {
-    format = 'D[D]';
+    format = 'DD[D] ';
   }
 
-  if (durationTime.hours()) {
-    format += format.length !== 0 ? ' H[H]' : 'H[H]';
+  if (durationTime.hours() || diff >= MILLISECOND_IN_DAY) {
+    format += 'HH[H] ';
   }
 
-  if (durationTime.minutes()) {
-    format += format.length !== 0 ? ' m[M]' : 'm[M]';
-  }
+  format += 'mm[M]';
 
-  return format.length !== 0 ? durationTime.format(format) : '';
-}
-
-function getRandomDate(start, end) {
-  return new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
-}
-
-function getRandomNumber(min, max) {
-  return Math.floor(Math.random() * (max - min) + min);
-}
-
-function getIdGenerator() {
-  let currentId = 0;
-
-  return function () {
-    currentId++;
-
-    return currentId;
-  };
-}
-
-function getLorem(countSentences) {
-  const sentences = LOREM_TEXT.split('.');
-  let newLorem = '';
-
-  for (let i = 0; i < countSentences; i++) {
-    newLorem += i === 0 ? `${getRandomElementFromArray(sentences)}.` : ` ${getRandomElementFromArray(sentences)}.`;
-  }
-
-  return newLorem;
+  return durationTime.format(format);
 }
 
 function getEventTypeIconSrc(type) {
@@ -99,15 +58,10 @@ function updateItem(items, updatedItem) {
 }
 
 export {
-  getRandomElementFromArray,
   humanizeDate,
   getTime,
   getDiffTime,
   getDateWithTime,
-  getRandomDate,
-  getRandomNumber,
-  getIdGenerator,
-  getLorem,
   getEventTypeIconSrc,
   updateItem
 };

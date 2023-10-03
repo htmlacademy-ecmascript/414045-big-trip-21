@@ -8,21 +8,54 @@ export default class TripEventPresenter {
   #offers = [];
   #destinations = [];
   #eventsListContainer = null;
-  #onUpdateTripEvent = null;
   #tripEventComponent = null;
   #editTripEventComponent = null;
   #onOpenEditForm = null;
   #handleViewAction = null;
   #isOpenEdit = false;
 
-  constructor({offers, destinations, eventsListContainer, onUpdateTripEvent, onOpenEditForm, handleViewAction}) {
+  constructor({offers, destinations, eventsListContainer, onOpenEditForm, handleViewAction}) {
     this.#offers = offers;
     this.#destinations = destinations;
     this.#eventsListContainer = eventsListContainer;
-    this.#onUpdateTripEvent = onUpdateTripEvent;
     this.#onOpenEditForm = onOpenEditForm;
     this.#handleViewAction = handleViewAction;
   }
+
+  #escKeyDown = (evt) => {
+    if (evt.key === 'Escape' || evt.key === 'Esc') {
+      evt.preventDefault();
+      this.reset();
+      document.removeEventListener('keydown', this.#escKeyDown);
+    }
+  };
+
+  #openEdit = () => {
+    this.#onOpenEditForm();
+    replace(this.#editTripEventComponent, this.#tripEventComponent);
+    document.addEventListener('keydown', this.#escKeyDown);
+    this.#isOpenEdit = true;
+  };
+
+  #closeEdit = () => {
+    replace(this.#tripEventComponent, this.#editTripEventComponent);
+    this.#isOpenEdit = false;
+  };
+
+  #onSubmit = (tripEvent) => {
+    this.#handleViewAction(TripEventUserAction.UPDATE, UpdateType.MAJOR, tripEvent);
+  };
+
+  #onDelete = (tripEvent) => {
+    this.#handleViewAction(TripEventUserAction.DELETE, UpdateType.MAJOR, tripEvent);
+  };
+
+  #toggleFavoriteState = () => {
+    this.#handleViewAction(TripEventUserAction.UPDATE, UpdateType.PATCH, {
+      ...this.#tripEvent,
+      isFavorite: !this.#tripEvent.isFavorite
+    });
+  };
 
   init(tripEvent) {
     this.#tripEvent = tripEvent;
@@ -47,7 +80,7 @@ export default class TripEventPresenter {
       destinations: this.#destinations,
       onSubmit: this.#onSubmit,
       onClickRollupButton: this.#closeEdit,
-      onCLickDeleteButton: this.#handleTripEventDelete
+      onCLickDeleteButton: this.#onDelete
     });
 
     if (prevTripEventComponent === null || prevEditTripEventComponent === null) {
@@ -65,38 +98,6 @@ export default class TripEventPresenter {
     remove(prevTripEventComponent);
     remove(prevEditTripEventComponent);
   }
-
-  #escKeyDown = (evt) => {
-    if (evt.key === 'Escape' || evt.key === 'Esc') {
-      evt.preventDefault();
-      this.reset();
-      document.removeEventListener('keydown', this.#escKeyDown);
-    }
-  };
-
-  #toggleFavoriteState = () => {
-    this.#onUpdateTripEvent({...this.#tripEvent, isFavorite: !this.#tripEvent.isFavorite});
-  };
-
-  #openEdit = () => {
-    this.#onOpenEditForm();
-    replace(this.#editTripEventComponent, this.#tripEventComponent);
-    document.addEventListener('keydown', this.#escKeyDown);
-    this.#isOpenEdit = true;
-  };
-
-  #closeEdit = () => {
-    replace(this.#tripEventComponent, this.#editTripEventComponent);
-    this.#isOpenEdit = false;
-  };
-
-  #onSubmit = (tripEvent) => {
-    this.#handleViewAction(TripEventUserAction.UPDATE, UpdateType.MAJOR, tripEvent);
-  };
-
-  #handleTripEventDelete = (tripEvent) => {
-    this.#handleViewAction(TripEventUserAction.DELETE, UpdateType.MAJOR, tripEvent);
-  };
 
   reset = () => {
     if (this.#isOpenEdit) {
@@ -130,14 +131,16 @@ export default class TripEventPresenter {
   }
 
   setAborting() {
-    const resetFormState = () => {
-      this.#editTripEventComponent.updateElement({
-        isDisabled: false,
-        isSaving: false,
-        isDeleting: false
+    if (this.#isOpenEdit) {
+      this.#editTripEventComponent.shake(() => {
+        this.#editTripEventComponent.updateElement({
+          isDisabled: false,
+          isSaving: false,
+          isDeleting: false
+        });
       });
-    };
-
-    this.#editTripEventComponent.shake(resetFormState);
+    } else {
+      this.#tripEventComponent.shake();
+    }
   }
 }

@@ -2,6 +2,19 @@ import ApiService from '../framework/api-service';
 import {HttpMethod} from '../const';
 
 export default class PointsApiService extends ApiService {
+  #adaptToServer(tripEvent) {
+    return {
+      id: tripEvent.id,
+      type: tripEvent.type,
+      'base_price': tripEvent.basePrice,
+      'date_from': tripEvent.dateFrom instanceof Date ? tripEvent.dateFrom.toISOString() : null,
+      'date_to': tripEvent.dateTo instanceof Date ? tripEvent.dateTo.toISOString() : null,
+      destination: tripEvent.destination,
+      'is_favorite': tripEvent.isFavorite,
+      offers: tripEvent.offers
+    };
+  }
+
   get tripEvents() {
     return this._load({
       url: 'points'
@@ -35,18 +48,5 @@ export default class PointsApiService extends ApiService {
       url: `points/${tripEventId}`,
       method: HttpMethod.DELETE
     });
-  }
-
-  #adaptToServer(tripEvent) {
-    return {
-      id: tripEvent.id,
-      type: tripEvent.type,
-      'base_price': tripEvent.basePrice,
-      'date_from': tripEvent.dateFrom instanceof Date ? tripEvent.dateFrom.toISOString() : null,
-      'date_to': tripEvent.dateTo instanceof Date ? tripEvent.dateTo.toISOString() : null,
-      destination: tripEvent.destination,
-      'is_favorite': tripEvent.isFavorite,
-      offers: tripEvent.offers
-    };
   }
 }

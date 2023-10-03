@@ -15,7 +15,7 @@ function sortByTime(eventA, eventB) {
 }
 
 function sortByDate(eventA, eventB) {
-  return dayjs(eventA.dateFrom).isAfter(eventB.dateFrom);
+  return dayjs(eventA.dateFrom).diff(eventB.dateFrom);
 }
 
 function getEventDuration(event) {
@@ -64,7 +64,7 @@ function getItinerary(tripEvents, destinations) {
     return '';
   }
 
-  const tripEventsSortedByDate = [...tripEvents].sort(sortByPrice);
+  const tripEventsSortedByDate = [...tripEvents].sort(sortByDate);
   const startDestination = destinations.find((destination) => destination.id === tripEventsSortedByDate[0].destination);
   const endDestination = destinations.find((destination) => destination.id === tripEventsSortedByDate[tripEventsSortedByDate.length - 1].destination);
 
@@ -108,9 +108,9 @@ function getItineraryDates(tripEvents) {
     return '';
   }
 
-  const tripEventsSortedByDate = [...tripEvents].sort(sortByPrice);
-  const startDate = dayjs(tripEventsSortedByDate[0].dateFrom).format('MMM DD');
-  const endDate = dayjs(tripEventsSortedByDate[tripEventsSortedByDate.length - 1].dateTo).format('MMM DD');
+  const tripEventsSortedByDate = [...tripEvents].sort(sortByDate);
+  const startDate = dayjs(tripEventsSortedByDate[0].dateFrom).format('DD MMM');
+  const endDate = dayjs(tripEventsSortedByDate[tripEventsSortedByDate.length - 1].dateTo).format('DD MMM');
 
   return `${startDate} — ${endDate}`;
 }

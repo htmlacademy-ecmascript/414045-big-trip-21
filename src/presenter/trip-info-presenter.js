@@ -27,28 +27,6 @@ export default class TripInfoPresenter {
     this.#destinationModel.addObserver(this.#handleModelEvent);
   }
 
-  init() {
-    if (this.#isLoading) {
-      return;
-    }
-
-    const tripEvents = this.#tripEventModel.tripEvents;
-    const offers = this.#offerModel.offers;
-    const destinations = this.#destinationModel.destinations;
-
-    const title = getItinerary(tripEvents, destinations);
-    const price = getItineraryTotalPrice(tripEvents, offers);
-    const dates = getItineraryDates(tripEvents);
-
-    this.#tripInfoComponent = new TripInfoView({
-      title,
-      price,
-      dates
-    });
-
-    render(this.#tripInfoComponent, this.#container, RenderPosition.AFTERBEGIN);
-  }
-
   #handleModelEvent = (updateType, data) => {
     if (updateType === UpdateType.INIT) {
       this.#updateLoadingStatus(data);
@@ -72,6 +50,33 @@ export default class TripInfoPresenter {
         break;
     }
   };
+
+  init() {
+    if (this.#isLoading) {
+      return;
+    }
+
+    const tripEvents = this.#tripEventModel.tripEvents;
+
+    if (tripEvents.length === 0) {
+      return;
+    }
+
+    const offers = this.#offerModel.offers;
+    const destinations = this.#destinationModel.destinations;
+
+    const title = getItinerary(tripEvents, destinations);
+    const price = getItineraryTotalPrice(tripEvents, offers);
+    const dates = getItineraryDates(tripEvents);
+
+    this.#tripInfoComponent = new TripInfoView({
+      title,
+      price,
+      dates
+    });
+
+    render(this.#tripInfoComponent, this.#container, RenderPosition.AFTERBEGIN);
+  }
 
   destroy = () => {
     remove(this.#tripInfoComponent);
