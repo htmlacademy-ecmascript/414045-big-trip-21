@@ -8,8 +8,8 @@ function createTemplate(sortItems, currentSort) {
 
 function createSortTemplate(sort, currentSort) {
   return `<div class="trip-sort__item  trip-sort__item--${sort.name}">
-            <input id="sort-${sort.name}" class="trip-sort__input  visually-hidden" type="radio" name="trip-sort" value="${sort.name}" ${sort.isEnabled ? '' : 'disabled'} ${sort.name === currentSort ? 'checked' : ''}>
-            <label class="trip-sort__btn" for="sort-${sort.name}">${sort.name}</label>
+            <input id="${sort.id}" class="trip-sort__input  visually-hidden" type="radio" name="trip-sort" value="${sort.id}" ${sort.isEnabled ? '' : 'disabled'} ${sort.id === currentSort ? 'checked' : ''}>
+            <label class="trip-sort__btn" for="${sort.id}">${sort.name}</label>
           </div>`;
 }
 

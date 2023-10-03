@@ -1,17 +1,17 @@
 import TripEventsListView from '../view/trip-events-list-view';
-import EmptyTripEventsListView from '../view/empty-trip-events-list-view';
-import {remove, render} from '../framework/render';
+import EmptyListWithMessageView from '../view/empty-list-with-message-view';
 import TripEventPresenter from './trip-event-presenter';
-import {FilterType, SortType, TripEventUserAction, UpdateType} from '../const';
-import {filterTripEvents, sortByDate, sortByPrice, sortByTime} from '../utils/trip-event';
 import FiltersPresenter from './filters-presenter';
 import SortsPresenter from './sorts-presenter';
 import AddTripEventPresenter from './add-trip-event-presenter';
+import TripInfoPresenter from './trip-info-presenter';
 import TripEventModel from '../model/trip-event-model';
 import OfferModel from '../model/offer-model';
 import DestinationModel from '../model/destination-model';
 import UiBlocker from '../framework/ui-blocker/ui-blocker';
-import TripInfoPresenter from './trip-info-presenter';
+import {remove, render} from '../framework/render';
+import {FilterType, SortType, TripEventUserAction, UpdateType} from '../const';
+import {filterTripEvents, sortByDate, sortByPrice, sortByTime} from '../utils/trip-event';
 
 const TimeLimit = {
   LOWER_LIMIT: 350,
@@ -19,27 +19,35 @@ const TimeLimit = {
 };
 
 export default class AppPresenter {
-  #destinations = [];
-  #offers = [];
   #tripEventModel = null;
   #destinationModel = null;
   #offerModel = null;
   #filterModel = null;
   #sortModel = null;
+
   #tripEventsContainer = document.querySelector('.trip-events');
-  #tripEventsList = new TripEventsListView();
   #filterContainer = document.querySelector('.trip-controls__filters');
+
   #filtersPresenter = null;
-  #tripInfoPresenter = null;
-  #emptyTipEventListComponent = new EmptyTripEventsListView();
   #sortsPresenter = null;
-  #tripEventPresenters = new Map();
-  #newEventButton = document.querySelector('.trip-main__event-add-btn');
+  #tripInfoPresenter = null;
   #addTripEventPresenter = null;
+  #tripEventPresenters = new Map();
+
+  #messageComponent = null;
+  #loadingTripEventsComponent = new EmptyListWithMessageView({message: 'Loading...'});
+  #tripEventsListComponent = new TripEventsListView();
+
+  #newEventButton = document.querySelector('.trip-main__event-add-btn');
+
+  #isLoadingError = false;
   #isLoading = true;
   #isLoadingTripEvents = true;
   #isLoadingDestinations = true;
   #isLoadingOffers = true;
+  #isDeletedAllTripEvents = false;
+  #isCreatingTripEvent = false;
+
   #uiBlocker = new UiBlocker({
     lowerLimit: TimeLimit.LOWER_LIMIT,
     upperLimit: TimeLimit.UPPER_LIMIT
@@ -54,6 +62,7 @@ export default class AppPresenter {
     this.#filtersPresenter = new FiltersPresenter({
       tripEventModel: this.#tripEventModel,
       filterModel: this.#filterModel,
+      sortModel: this.#sortModel,
       container: this.#filterContainer
     });
     this.#sortsPresenter = new SortsPresenter({
@@ -89,34 +98,29 @@ export default class AppPresenter {
     return filteredTripEvents;
   }
 
-  init() {
-    this.#tripInfoPresenter.init();
-    this.#filtersPresenter.init();
-  }
-
   #renderTripEventsList() {
-    render(this.#tripEventsList, this.#tripEventsContainer);
+    this.#removeMessage();
+    render(this.#tripEventsListComponent, this.#tripEventsContainer);
 
-    if (this.#isLoading) {
+    if (this.#isLoadingError) {
+      this.#renderMessage('Failed to load latest route information');
       return;
     }
 
     if (this.tripEvents.length > 0) {
-      remove(this.#emptyTipEventListComponent);
       this.#sortsPresenter.init();
-    } else {
-      render(this.#emptyTipEventListComponent, this.#tripEventsContainer);
+    } else if (this.#isDeletedAllTripEvents && this.#filterModel.filter !== FilterType.EVERYTHING) {
+      this.#renderMessage(`There are no ${this.#filterModel.filter} events now`);
+      this.#isDeletedAllTripEvents = false;
+    } else if (!this.#isCreatingTripEvent) {
+      this.#renderMessage('Click New Event to create your first point');
     }
-
-    this.#offers = this.#offerModel.offers;
-    this.#destinations = this.#destinationModel.destinations;
 
     for (const tripEvent of this.tripEvents) {
       const tripEventPresenter = new TripEventPresenter({
-        offers: this.#offers,
-        destinations: this.#destinations,
-        eventsListContainer: this.#tripEventsList,
-        onUpdateTripEvent: this.#handleTripEventChange,
+        offers: this.#offerModel.offers,
+        destinations: this.#destinationModel.destinations,
+        eventsListContainer: this.#tripEventsListComponent,
         onOpenEditForm: this.#handleOpenEditEvent,
         handleViewAction: this.#handleViewAction
       });
@@ -125,42 +129,23 @@ export default class AppPresenter {
     }
   }
 
-  #handleTripEventChange = (updatedTripEvent) => {
-    this.#tripEventModel.updateTripEvent(UpdateType.PATCH, updatedTripEvent);
-  };
+  #renderMessage(message) {
+    this.#messageComponent = new EmptyListWithMessageView({message});
 
-  #handleOpenEditEvent = () => {
-    this.#closeCreateForm();
-    this.#tripEventPresenters.forEach((tripEventPresenter) => tripEventPresenter.reset());
-  };
+    render(this.#messageComponent, this.#tripEventsContainer);
+  }
+
+  #removeMessage() {
+    if (this.#messageComponent) {
+      remove(this.#messageComponent);
+      this.#messageComponent = null;
+    }
+  }
 
   #clearTripEventsList() {
     this.#tripEventPresenters.forEach((presenter) => presenter.destroy());
     this.#tripEventPresenters.clear();
   }
-
-  #handleModelEvent = (updateType, data) => {
-    switch (updateType) {
-      case UpdateType.PATCH:
-        this.#tripEventPresenters.get(data.id).init(data);
-        break;
-      case UpdateType.MINOR:
-        this.#closeCreateForm();
-        this.#clearTripEventsList();
-        this.#renderTripEventsList();
-        break;
-      case UpdateType.MAJOR:
-        this.#closeCreateForm();
-        this.#clearTripEventsList();
-        this.#renderTripEventsList();
-        break;
-      case UpdateType.INIT:
-        this.#updateLoadingStatus(data);
-        this.#isLoading = this.#isLoadingTripEvents || this.#isLoadingDestinations || this.#isLoadingOffers;
-        this.#renderTripEventsList();
-        break;
-    }
-  };
 
   #updateLoadingStatus = (modelClassName) => {
     switch (modelClassName) {
@@ -176,33 +161,42 @@ export default class AppPresenter {
     }
   };
 
-  #handlerClickCreateEventButton = () => {
-    this.#filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
-    this.#sortModel.setSort(UpdateType.MINOR, SortType.DAY);
-    this.#tripEventPresenters.forEach((tripEventPresenter) => tripEventPresenter.reset());
-    this.#newEventButton.disabled = true;
-    this.#addTripEventPresenter = new AddTripEventPresenter({
-      offers: this.#offers,
-      destinations: this.#destinations,
-      container: this.#tripEventsList,
-      onClose: this.#handlerCloseCreateTripEventForm,
-      handleViewAction: this.#handleViewAction
-    });
-
-    this.#addTripEventPresenter.init();
-
-  };
-
-  #handlerCloseCreateTripEventForm = () => {
-    this.#newEventButton.disabled = false;
-  };
-
   #closeCreateForm = () => {
     if (this.#addTripEventPresenter) {
       this.#addTripEventPresenter.destroy();
       this.#addTripEventPresenter = null;
       this.#newEventButton.disabled = false;
     }
+  };
+
+  #handlerClickCreateEventButton = () => {
+    this.#isCreatingTripEvent = true;
+    this.#filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
+    this.#sortModel.setSort(UpdateType.MINOR, SortType.DAY);
+    this.#tripEventPresenters.forEach((tripEventPresenter) => tripEventPresenter.reset());
+    this.#newEventButton.disabled = true;
+    this.#addTripEventPresenter = new AddTripEventPresenter({
+      offers: this.#offerModel.offers,
+      destinations: this.#destinationModel.destinations,
+      container: this.#tripEventsListComponent,
+      onClose: this.#handlerCloseCreateTripEventForm,
+      handleViewAction: this.#handleViewAction
+    });
+
+    this.#addTripEventPresenter.init();
+  };
+
+  #handleOpenEditEvent = () => {
+    this.#removeMessage();
+    this.#closeCreateForm();
+    this.#tripEventPresenters.forEach((tripEventPresenter) => tripEventPresenter.reset());
+  };
+
+  #handlerCloseCreateTripEventForm = () => {
+    this.#newEventButton.disabled = false;
+    this.#isCreatingTripEvent = false;
+    this.#clearTripEventsList();
+    this.#renderTripEventsList();
   };
 
   #handleViewAction = async (actionType, updateType, tripEvent) => {
@@ -228,6 +222,7 @@ export default class AppPresenter {
       case TripEventUserAction.DELETE:
         try {
           this.#tripEventPresenters.get(tripEvent.id).setDeleting();
+          this.#isDeletedAllTripEvents = true;
           await this.#tripEventModel.deleteTripEvent(updateType, tripEvent);
         } catch {
           this.#tripEventPresenters.get(tripEvent.id).setAborting();
@@ -237,4 +232,43 @@ export default class AppPresenter {
 
     this.#uiBlocker.unblock();
   };
+
+  #handleModelEvent = (updateType, data) => {
+    switch (updateType) {
+      case UpdateType.PATCH:
+        this.#tripEventPresenters.get(data.id).init(data);
+        break;
+      case UpdateType.MINOR:
+        this.#closeCreateForm();
+        this.#clearTripEventsList();
+        this.#renderTripEventsList();
+        break;
+      case UpdateType.MAJOR:
+        this.#closeCreateForm();
+        this.#clearTripEventsList();
+        this.#renderTripEventsList();
+        break;
+      case UpdateType.INIT:
+        this.#updateLoadingStatus(data);
+        this.#isLoading = this.#isLoadingTripEvents || this.#isLoadingDestinations || this.#isLoadingOffers;
+
+        if (this.#isLoading) {
+          return;
+        } else {
+          remove(this.#loadingTripEventsComponent);
+        }
+
+        this.#renderTripEventsList();
+        break;
+      case UpdateType.LOADING_ERROR:
+        this.#isLoadingError = true;
+        break;
+    }
+  };
+
+  init() {
+    render(this.#loadingTripEventsComponent, this.#tripEventsContainer);
+    this.#tripInfoPresenter.init();
+    this.#filtersPresenter.init();
+  }
 }

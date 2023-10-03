@@ -1,5 +1,5 @@
 import {remove, render, replace} from '../framework/render';
-import {SortType, UpdateType} from '../const';
+import {SortName, SortType, UpdateType} from '../const';
 import SortView from '../view/sort-view';
 
 export default class SortsPresenter {
@@ -17,24 +17,6 @@ export default class SortsPresenter {
     this.#tripEventModel.addObserver(this.#handleModelEvent);
   }
 
-  init() {
-    const sorts = this.#getSorts();
-    const prevSortComponent = this.#sortComponent;
-
-    this.#sortComponent = new SortView({
-      sorts,
-      onSortChange: this.#handleSortChange
-    });
-
-    if (prevSortComponent === null) {
-      render(this.#sortComponent, this.#container);
-      return;
-    }
-
-    replace(this.#sortComponent, prevSortComponent);
-    remove(prevSortComponent);
-  }
-
   #handleModelEvent = () => {
     this.init();
   };
@@ -50,25 +32,49 @@ export default class SortsPresenter {
   #getSorts() {
     return [
       {
-        name: SortType.DAY,
+        id: SortType.DAY,
+        name: SortName.DAY,
         isEnabled: true
       },
       {
-        name: SortType.EVENT,
+        id: SortType.EVENT,
+        name: SortName.EVENT,
         isEnabled: false
       },
       {
-        name: SortType.TIME,
+        id: SortType.TIME,
+        name: SortName.TIME,
         isEnabled: true
       },
       {
-        name: SortType.PRICE,
+        id: SortType.PRICE,
+        name: SortName.PRICE,
         isEnabled: true
       },
       {
-        name: SortType.OFFER,
+        id: SortType.OFFER,
+        name: SortName.OFFER,
         isEnabled: false
       }
     ];
+  }
+
+  init() {
+    const sorts = this.#getSorts();
+    const prevSortComponent = this.#sortComponent;
+
+    this.#sortComponent = new SortView({
+      sorts,
+      onSortChange: this.#handleSortChange,
+      currentSort: this.#sortModel.sort
+    });
+
+    if (prevSortComponent === null) {
+      render(this.#sortComponent, this.#container);
+      return;
+    }
+
+    replace(this.#sortComponent, prevSortComponent);
+    remove(prevSortComponent);
   }
 }
