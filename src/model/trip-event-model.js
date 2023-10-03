@@ -35,6 +35,7 @@ export default class TripEventModel extends Observable {
       this.#tripEvents = tripEvents.map(this.#adaptToClient);
     } catch {
       this.#tripEvents = [];
+      this._notify(UpdateType.LOADING_ERROR);
     }
 
     this._notify(UpdateType.INIT, TripEventModel.name);

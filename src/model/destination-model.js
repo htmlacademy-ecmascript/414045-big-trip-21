@@ -19,6 +19,7 @@ export default class DestinationModel extends Observable {
       this.#destinations = await this.#destinationApiService.destinations;
     } catch {
       this.#destinations = [];
+      this._notify(UpdateType.LOADING_ERROR);
     }
 
     this._notify(UpdateType.INIT, DestinationModel.name);
