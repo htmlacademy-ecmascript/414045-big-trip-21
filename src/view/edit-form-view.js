@@ -210,7 +210,7 @@ export default class EditFormView extends AbstractStatefulView {
         'time_24hr': true,
         dateFormat: 'd/m/y H:i',
         defaultDate: defaultDate,
-        onChange: onChange
+        onValueUpdate: onChange
       }
     );
   }
