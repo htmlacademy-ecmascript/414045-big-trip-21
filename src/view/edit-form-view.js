@@ -211,8 +211,7 @@ export default class EditFormView extends AbstractStatefulView {
         'time_24hr': true,
         dateFormat: 'd/m/y H:i',
         defaultDate: defaultDate,
-        onChange: onChange,
-        // onValueUpdate: onChange
+        onValueUpdate: onChange
       }
     );
   }
@@ -246,7 +245,6 @@ export default class EditFormView extends AbstractStatefulView {
       return;
     }
 
-    this._setState({destination: selectedDestination.id});
     this.updateElement({destination: selectedDestination.id});
   };
 
@@ -270,11 +268,11 @@ export default class EditFormView extends AbstractStatefulView {
   };
 
   #onChangeDateFrom = ([newDate]) => {
-    this.updateElement({dateFrom: newDate});
+    this._setState({dateFrom: newDate});
   };
 
   #onChangeDateTo = ([newDate]) => {
-    this.updateElement({dateTo: newDate});
+    this._setState({dateTo: newDate});
   };
 
   #onDelete = () => {
@@ -344,7 +342,15 @@ export default class EditFormView extends AbstractStatefulView {
 
   removeElement() {
     super.removeElement();
-    this.#datepickerDateFrom.destroy();
-    this.#datepickerDateTo.destroy();
+
+    if (this.#datepickerDateFrom) {
+      this.#datepickerDateFrom.destroy();
+      this.#datepickerDateFrom = null;
+    }
+
+    if (this.#datepickerDateTo) {
+      this.#datepickerDateTo.destroy();
+      this.#datepickerDateTo = null;
+    }
   }
 }
