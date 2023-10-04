@@ -1,7 +1,7 @@
 import {remove, render, replace} from '../framework/render';
 import FilterView from '../view/filter-view';
 import {FilterType, SortType, UpdateType} from '../const';
-import {getActiveFilters} from '../utils/trip-event';
+import {getActiveFilters} from '../utils/filter';
 
 export default class FiltersPresenter {
   #container = null;

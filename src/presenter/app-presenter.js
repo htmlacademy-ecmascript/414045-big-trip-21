@@ -11,7 +11,8 @@ import DestinationModel from '../model/destination-model';
 import UiBlocker from '../framework/ui-blocker/ui-blocker';
 import {remove, render} from '../framework/render';
 import {FilterType, SortType, TripEventUserAction, UpdateType} from '../const';
-import {filterTripEvents, sortByDate, sortByPrice, sortByTime} from '../utils/trip-event';
+import {filterTripEvents} from '../utils/filter';
+import {sortByDate, sortByPrice, sortByTime} from '../utils/sort';
 
 const TimeLimit = {
   LOWER_LIMIT: 350,
