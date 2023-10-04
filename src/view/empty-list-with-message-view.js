@@ -1,5 +1,9 @@
 import AbstractView from '../framework/view/abstract-view';
 
+function createTemplate(message) {
+  return `<p class="trip-events__msg">${message}</p>`;
+}
+
 export default class EmptyListWithMessageView extends AbstractView {
   #message = '';
 
@@ -10,6 +14,6 @@ export default class EmptyListWithMessageView extends AbstractView {
   }
 
   get template() {
-    return `<p class="trip-events__msg">${this.#message}</p>`;
+    return createTemplate(this.#message);
   }
 }

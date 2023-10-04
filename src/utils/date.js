@@ -49,19 +49,9 @@ function getDiffTime(dateStart, dateEnd) {
   return durationTime.format(format);
 }
 
-function getEventTypeIconSrc(type) {
-  return `/img/icons/${type}.png`;
-}
-
-function updateItem(items, updatedItem) {
-  return items.map((item) => item.id === updatedItem.id ? updatedItem : item);
-}
-
 export {
   humanizeDate,
   getTime,
   getDiffTime,
   getDateWithTime,
-  getEventTypeIconSrc,
-  updateItem
 };

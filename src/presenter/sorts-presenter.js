@@ -2,6 +2,34 @@ import {remove, render, replace} from '../framework/render';
 import {SortName, SortType, UpdateType} from '../const';
 import SortView from '../view/sort-view';
 
+const SORTS = [
+  {
+    id: SortType.DAY,
+    name: SortName.DAY,
+    isEnabled: true
+  },
+  {
+    id: SortType.EVENT,
+    name: SortName.EVENT,
+    isEnabled: false
+  },
+  {
+    id: SortType.TIME,
+    name: SortName.TIME,
+    isEnabled: true
+  },
+  {
+    id: SortType.PRICE,
+    name: SortName.PRICE,
+    isEnabled: true
+  },
+  {
+    id: SortType.OFFER,
+    name: SortName.OFFER,
+    isEnabled: false
+  }
+];
+
 export default class SortsPresenter {
   #container = null;
   #sortModel = null;
@@ -29,42 +57,15 @@ export default class SortsPresenter {
     this.#sortModel.setSort(UpdateType.MINOR, sortType);
   };
 
-  #getSorts() {
-    return [
-      {
-        id: SortType.DAY,
-        name: SortName.DAY,
-        isEnabled: true
-      },
-      {
-        id: SortType.EVENT,
-        name: SortName.EVENT,
-        isEnabled: false
-      },
-      {
-        id: SortType.TIME,
-        name: SortName.TIME,
-        isEnabled: true
-      },
-      {
-        id: SortType.PRICE,
-        name: SortName.PRICE,
-        isEnabled: true
-      },
-      {
-        id: SortType.OFFER,
-        name: SortName.OFFER,
-        isEnabled: false
-      }
-    ];
+  get sorts() {
+    return SORTS;
   }
 
   init() {
-    const sorts = this.#getSorts();
     const prevSortComponent = this.#sortComponent;
 
     this.#sortComponent = new SortView({
-      sorts,
+      sorts: this.sorts,
       onSortChange: this.#handleSortChange,
       currentSort: this.#sortModel.sort
     });

@@ -1,5 +1,5 @@
 import Observable from '../framework/observable';
-import {updateItem} from '../utils/common';
+import {updateItem} from '../utils/trip-event';
 import {UpdateType} from '../const';
 
 export default class TripEventModel extends Observable {

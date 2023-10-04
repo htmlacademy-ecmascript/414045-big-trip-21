@@ -1,9 +1,6 @@
-import {getDateWithTime, getEventTypeIconSrc} from '../utils/common';
 import AbstractStatefulView from '../framework/view/abstract-stateful-view';
 import flatpickr from 'flatpickr';
 import Pristine from 'pristinejs/dist/pristine';
-
-import 'flatpickr/dist/flatpickr.min.css';
 import {
   destinationValidate,
   diffDateValidate,
@@ -11,6 +8,10 @@ import {
   ERROR_MESSAGE_DESTINATION_NOT_SELECTED,
   ERROR_MESSAGE_PRICE_INVALID
 } from '../utils/validation';
+import {getEventTypeIconSrc} from '../utils/trip-event';
+import {getDateWithTime} from '../utils/date';
+
+import 'flatpickr/dist/flatpickr.min.css';
 
 const DEFAULT_TYPE = 'flight';
 const TRIP_EVENT_DEFAULT = {
@@ -210,7 +211,8 @@ export default class EditFormView extends AbstractStatefulView {
         'time_24hr': true,
         dateFormat: 'd/m/y H:i',
         defaultDate: defaultDate,
-        onValueUpdate: onChange
+        onChange: onChange,
+        // onValueUpdate: onChange
       }
     );
   }
@@ -251,7 +253,7 @@ export default class EditFormView extends AbstractStatefulView {
   #onChangePrice = (evt) => {
     const price = evt.target.value.replace(/\D/g, '');
     evt.target.value = price;
-    this._setState({basePrice: Number(price)});
+    this.updateElement({basePrice: Number(price)});
   };
 
   #onChangeOffer = (evt) => {
@@ -264,15 +266,15 @@ export default class EditFormView extends AbstractStatefulView {
       offers.add(offerId);
     }
 
-    this._setState({offers: offers});
+    this.updateElement({offers: offers});
   };
 
   #onChangeDateFrom = ([newDate]) => {
-    this._setState({dateFrom: newDate});
+    this.updateElement({dateFrom: newDate});
   };
 
   #onChangeDateTo = ([newDate]) => {
-    this._setState({dateTo: newDate});
+    this.updateElement({dateTo: newDate});
   };
 
   #onDelete = () => {
