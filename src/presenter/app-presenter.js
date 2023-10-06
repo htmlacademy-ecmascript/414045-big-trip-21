@@ -255,10 +255,9 @@ export default class AppPresenter {
 
         if (this.#isLoading) {
           return;
-        } else {
-          remove(this.#loadingTripEventsComponent);
         }
 
+        remove(this.#loadingTripEventsComponent);
         this.#renderTripEventsList();
         break;
       case UpdateType.LOADING_ERROR:

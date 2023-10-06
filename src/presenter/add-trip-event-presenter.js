@@ -23,7 +23,7 @@ export default class AddTripEventPresenter {
       offers: this.#offers,
       destinations: this.#destinations,
       onSubmit: this.#handleFormSubmit,
-      onClickCancelButton: this.#onClickCancelButton
+      onClose: this.#onClickCancelButton
     });
 
     render(this.#createTripEventComponent, this.#container.element, RenderPosition.AFTERBEGIN);

@@ -1,26 +1,27 @@
 import AbstractView from '../framework/view/abstract-view';
-import {getDiffTime, getTime, humanizeDate} from '../utils/date';
+import he from 'he';
+import {getDiffTime, getISODate, getTime, humanizeDate} from '../utils/date';
 import {getEventTypeIconSrc} from '../utils/trip-event';
 
 function createTemplate({tripEvent, destination, offers}) {
   return (
     `<li class="trip-events__item">
         <div class="event">
-        <time class="event__date" datetime="2019-03-18">${humanizeDate(tripEvent.dateFrom)}</time>
+        <time class="event__date" datetime="${he.encode(getISODate(tripEvent.dateFrom))}">${he.encode(humanizeDate(tripEvent.dateFrom))}</time>
         <div class="event__type">
-          <img class="event__type-icon" width="42" height="42" src="${getEventTypeIconSrc(tripEvent.type)}" alt="Event type icon">
+          <img class="event__type-icon" width="42" height="42" src="${he.encode(getEventTypeIconSrc(tripEvent.type))}" alt="Event type icon">
         </div>
-        <h3 class="event__title">${tripEvent.type} ${destination.name}</h3>
+        <h3 class="event__title">${he.encode(tripEvent.type)} ${he.encode(destination.name)}</h3>
         <div class="event__schedule">
           <p class="event__time">
-            <time class="event__start-time" datetime="2019-03-18T10:30">${getTime(tripEvent.dateFrom)}</time>
+            <time class="event__start-time" datetime="${he.encode(getISODate(tripEvent.dateFrom))}">${he.encode(getTime(tripEvent.dateFrom))}</time>
               &mdash;
-            <time class="event__end-time" datetime="2019-03-18T11:00">${getTime(tripEvent.dateTo)}</time>
+            <time class="event__end-time" datetime="${he.encode(getISODate(tripEvent.dateTo))}">${he.encode(getTime(tripEvent.dateTo))}</time>
           </p>
-          <p class="event__duration">${getDiffTime(tripEvent.dateFrom, tripEvent.dateTo)}</p>
+          <p class="event__duration">${he.encode(getDiffTime(tripEvent.dateFrom, tripEvent.dateTo))}</p>
         </div>
         <p class="event__price">
-          &euro;&nbsp;<span class="event__price-value">${tripEvent.basePrice}</span>
+          &euro;&nbsp;<span class="event__price-value">${he.encode(tripEvent.basePrice.toString())}</span>
         </p>
 
         ${offers}
@@ -46,8 +47,8 @@ function createOffersTemplate({tripEvent, offers}) {
   return eventOffers.length > 0 ? `<h4 class="visually-hidden">Offers:</h4>
         <ul class="event__selected-offers">
           ${eventOffers.map((offer) => `<li class="event__offer">
-                <span class="event__offer-title">${offer.title}</span> &plus;&euro;&nbsp;
-                <span class="event__offer-price">${offer.price}</span>
+                <span class="event__offer-title">${he.encode(offer.title)}</span> &plus;&euro;&nbsp;
+                <span class="event__offer-price">${he.encode(offer.price.toString())}</span>
              </li>`).join('')}
         </ul>` : '';
 }
