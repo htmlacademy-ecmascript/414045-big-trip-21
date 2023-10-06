@@ -38,6 +38,7 @@ export default class TripEventPresenter {
   };
 
   #closeEdit = () => {
+    this.#editTripEventComponent.reset(this.#tripEvent);
     replace(this.#tripEventComponent, this.#editTripEventComponent);
     this.#isOpenEdit = false;
   };
@@ -79,7 +80,7 @@ export default class TripEventPresenter {
       offers: this.#offers,
       destinations: this.#destinations,
       onSubmit: this.#onSubmit,
-      onClickRollupButton: this.#closeEdit,
+      onClose: this.#closeEdit,
       onCLickDeleteButton: this.#onDelete
     });
 

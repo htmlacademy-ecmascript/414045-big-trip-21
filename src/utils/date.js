@@ -5,6 +5,7 @@ import {MILLISECOND_IN_DAY} from '../const';
 const DATE_FORMAT = 'MMM DD';
 const TIME_FORMAT = 'HH:mm';
 const DATE_WITH_TIME_FORMAT = 'DD/MM/YY HH:mm';
+const DATE_TIME_ISO_FORMAT = 'YYYY-MM-DDThh:mm';
 
 dayjs.extend(duration);
 
@@ -18,6 +19,10 @@ function getTime(date) {
 
 function getDateWithTime(date) {
   return getDateByFormat(date, DATE_WITH_TIME_FORMAT);
+}
+
+function getISODate(date) {
+  return getDateByFormat(date, DATE_TIME_ISO_FORMAT);
 }
 
 function getDateByFormat(date, format) {
@@ -54,4 +59,5 @@ export {
   getTime,
   getDiffTime,
   getDateWithTime,
+  getISODate
 };
